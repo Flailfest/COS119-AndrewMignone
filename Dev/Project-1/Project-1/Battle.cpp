@@ -252,6 +252,7 @@ Character* Battle::chooseEnemyTarget()
             }
         }
 
+
         std::cout << "0. Back\n";
         std::cout << "\n";
         std::cout << "Choose: ";
@@ -284,6 +285,72 @@ Character* Battle::chooseEnemyTarget()
                 target->isAlive())
             {
                 return target;
+            }
+        }
+
+        std::cout
+            << "Invalid target.\n";
+    }
+}
+Character* Battle::chooseAllyTarget()
+{
+    while (true)
+    {
+        std::cout << "\n";
+        std::cout << "Choose an ally:\n";
+
+        for (int i = 1; i <= 4; i++)
+        {
+            Character* ally =
+                playerParty.getMember(i);
+
+            if (ally != nullptr &&
+                ally->isAlive())
+            {
+                std::cout
+                    << i
+                    << ". "
+                    << ally->getName()
+                    << " ("
+                    << ally->getHP()
+                    << "/"
+                    << ally->getMaxHP()
+                    << " HP)\n";
+            }
+        }
+
+        std::cout << "0. Back\n";
+        std::cout << "\n";
+        std::cout << "Choose: ";
+
+        int choice;
+        std::cin >> choice;
+
+        if (std::cin.fail())
+        {
+            std::cin.clear();
+            std::cin.ignore(10000, '\n');
+
+            std::cout
+                << "Invalid input.\n";
+
+            continue;
+        }
+
+        if (choice == 0)
+        {
+            return nullptr;
+        }
+
+        if (choice >= 1 && choice <= 4)
+        {
+            Character* ally =
+                playerParty.getMember(choice);
+
+            if (ally != nullptr &&
+                ally->isAlive())
+            {
+                return ally;
             }
         }
 
@@ -341,9 +408,25 @@ void Battle::skillMenu(Character& character)
             return;
         }
 
-        if (choice >= 1)
+        if (choice < 1)
         {
-            Character* target = chooseEnemyTarget();
+            std::cout
+                << "Invalid skill.\n";
+
+            continue;
+        }
+
+        /*
+            Crusader
+            Skill 1 = Holy Strike -> Enemy
+            Skill 2 = Heal Ally   -> Ally
+        */
+
+        if (character.getName() == "Crusader" &&
+            choice == 2)
+        {
+            Character* target =
+                chooseAllyTarget();
 
             if (target == nullptr)
             {
@@ -355,8 +438,21 @@ void Battle::skillMenu(Character& character)
             return;
         }
 
-        std::cout
-            << "Invalid skill.\n";
+        /*
+            All other skills currently target enemies.
+        */
+
+        Character* target =
+            chooseEnemyTarget();
+
+        if (target == nullptr)
+        {
+            continue;
+        }
+
+        character.useSkill(choice, *target);
+
+        return;
     }
 }
 

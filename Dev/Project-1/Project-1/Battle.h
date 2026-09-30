@@ -26,6 +26,7 @@ private:
     void skillMenu(Character& character);
 
     Character* chooseEnemyTarget();
+    Character* chooseAllyTarget();
 
     bool playerPartyAlive() const;
     bool enemyPartyAlive() const;
