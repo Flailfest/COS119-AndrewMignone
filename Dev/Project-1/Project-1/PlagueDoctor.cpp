@@ -61,3 +61,17 @@ void PlagueDoctor::useSkill(
         break;
     }
 }
+TargetType PlagueDoctor::getSkillTargetType(int skillNumber) const
+{
+    switch (skillNumber)
+    {
+    case 1:
+        return TargetType::Enemy;
+
+    case 2:
+        return TargetType::Ally;
+
+    default:
+        return TargetType::Enemy;
+    }
+}

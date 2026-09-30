@@ -286,3 +286,7 @@ void Character::useSkill(
     std::cout
         << "This character does not have skills implemented yet.\n";
 }
+TargetType Character::getSkillTargetType(int skillNumber) const
+{
+    return TargetType::Enemy;
+}

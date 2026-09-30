@@ -11,7 +11,11 @@ struct Stats
     int maxDamage;
     int critChance;
 };
-
+enum class TargetType
+{
+    Enemy,
+    Ally
+};
 class Character
 {
 protected:
@@ -25,16 +29,14 @@ protected:
 
 public:
 
-
+    
     // Constructor
     Character(const std::string& name, const Stats& stats);
 
     // Destructor
     virtual ~Character();
 
-
-    virtual void printSkills() const;
-    virtual void useSkill(int skillNumber, Character& target);
+ 
     // Getters
     const std::string& getName() const;
     int getHP() const;
@@ -56,6 +58,9 @@ public:
     void heal(int amount);
     void setPosition(int newPosition);
 
+    virtual TargetType getSkillTargetType(int skillNumber) const;
+    virtual void printSkills() const;
+    virtual void useSkill(int skillNumber, Character& target);
     // Stress
 
     void addStress(int amount);

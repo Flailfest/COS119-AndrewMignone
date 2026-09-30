@@ -397,8 +397,7 @@ void Battle::skillMenu(Character& character)
             std::cin.clear();
             std::cin.ignore(10000, '\n');
 
-            std::cout
-                << "Invalid input.\n";
+            std::cout << "Invalid input.\n";
 
             continue;
         }
@@ -410,40 +409,23 @@ void Battle::skillMenu(Character& character)
 
         if (choice < 1)
         {
-            std::cout
-                << "Invalid skill.\n";
-
+            std::cout << "Invalid skill.\n";
             continue;
         }
 
-        /*
-            Crusader
-            Skill 1 = Holy Strike -> Enemy
-            Skill 2 = Heal Ally   -> Ally
-        */
+        TargetType targetType =
+            character.getSkillTargetType(choice);
 
-        if (character.getName() == "Crusader" &&
-            choice == 2)
+        Character* target = nullptr;
+
+        if (targetType == TargetType::Enemy)
         {
-            Character* target =
-                chooseAllyTarget();
-
-            if (target == nullptr)
-            {
-                continue;
-            }
-
-            character.useSkill(choice, *target);
-
-            return;
+            target = chooseEnemyTarget();
         }
-
-        /*
-            All other skills currently target enemies.
-        */
-
-        Character* target =
-            chooseEnemyTarget();
+        else if (targetType == TargetType::Ally)
+        {
+            target = chooseAllyTarget();
+        }
 
         if (target == nullptr)
         {
@@ -455,7 +437,6 @@ void Battle::skillMenu(Character& character)
         return;
     }
 }
-
 void Battle::playerTurn(Character& character)
 {
     while (character.isAlive())
