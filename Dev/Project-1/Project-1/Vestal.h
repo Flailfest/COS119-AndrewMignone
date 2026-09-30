@@ -9,5 +9,7 @@ public:
 
     void healAlly(Character& target);
     void smite(Character& target);
-};
 
+    void printSkills() const override;
+    void useSkill(int skillNumber, Character& target) override;
+};

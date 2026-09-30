@@ -304,6 +304,61 @@ void Battle::attackMenu(Character& character)
 
     character.attack(*target);
 }
+void Battle::skillMenu(Character& character)
+{
+    while (true)
+    {
+        std::cout << "\n";
+        std::cout << "====================================\n";
+        std::cout
+            << character.getName()
+            << " Skills\n";
+        std::cout << "====================================\n";
+
+        character.printSkills();
+
+        std::cout << "0. Back\n";
+
+        std::cout << "\n";
+        std::cout << "Choose a skill: ";
+
+        int choice;
+        std::cin >> choice;
+
+        if (std::cin.fail())
+        {
+            std::cin.clear();
+            std::cin.ignore(10000, '\n');
+
+            std::cout
+                << "Invalid input.\n";
+
+            continue;
+        }
+
+        if (choice == 0)
+        {
+            return;
+        }
+
+        if (choice >= 1)
+        {
+            Character* target = chooseEnemyTarget();
+
+            if (target == nullptr)
+            {
+                continue;
+            }
+
+            character.useSkill(choice, *target);
+
+            return;
+        }
+
+        std::cout
+            << "Invalid skill.\n";
+    }
+}
 
 void Battle::playerTurn(Character& character)
 {
@@ -327,10 +382,10 @@ void Battle::playerTurn(Character& character)
         std::cout
             << "====================================\n";
 
-        std::cout << "\n";
         std::cout << "1. Attack\n";
-        std::cout << "2. Party Status\n";
-        std::cout << "3. Pass\n";
+        std::cout << "2. Skills\n";
+        std::cout << "3. Party Status\n";
+        std::cout << "4. Pass\n";
 
         std::cout << "\n";
         std::cout << "Choose an action: ";
@@ -355,22 +410,23 @@ void Battle::playerTurn(Character& character)
         {
             attackMenu(character);
 
-            /*
-                If the player selected "Back"
-                from the target menu, they get
-                another chance to choose an action.
-            */
-
             return;
         }
 
         case 2:
         {
+            skillMenu(character);
+
+            return;
+        }
+
+        case 3:
+        {
             printBattleState();
             break;
         }
 
-        case 3:
+        case 4:
         {
             std::cout
                 << character.getName()

@@ -35,3 +35,29 @@ void Vestal::smite(Character& target)
 
     attack(target);
 }
+void Vestal::printSkills() const
+{
+    std::cout << "1. Smite\n";
+    std::cout << "2. Heal Ally\n";
+}
+
+void Vestal::useSkill(
+    int skillNumber,
+    Character& target
+)
+{
+    switch (skillNumber)
+    {
+    case 1:
+        smite(target);
+        break;
+
+    case 2:
+        healAlly(target);
+        break;
+
+    default:
+        std::cout << "Invalid skill.\n";
+        break;
+    }
+}

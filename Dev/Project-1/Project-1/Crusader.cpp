@@ -35,3 +35,29 @@ void Crusader::healAlly(Character& target)
 
     target.heal(5);
 }
+void Crusader::printSkills() const
+{
+    std::cout << "1. Holy Strike\n";
+    std::cout << "2. Heal Ally\n";
+}
+
+void Crusader::useSkill(
+    int skillNumber,
+    Character& target
+)
+{
+    switch (skillNumber)
+    {
+    case 1:
+        holyStrike(target);
+        break;
+
+    case 2:
+        healAlly(target);
+        break;
+
+    default:
+        std::cout << "Invalid skill.\n";
+        break;
+    }
+}

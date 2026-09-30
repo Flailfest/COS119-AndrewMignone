@@ -9,5 +9,7 @@ public:
 
     void pistolShot(Character& target);
     void meleeAttack(Character& target);
-};
 
+    void printSkills() const override;
+    void useSkill(int skillNumber, Character& target) override;
+};

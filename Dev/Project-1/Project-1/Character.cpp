@@ -272,3 +272,17 @@ void Character::printInfo() const
 
     std::cout << "============================\n";
 }
+
+void Character::printSkills() const
+{
+    std::cout << "No skills available.\n";
+}
+
+void Character::useSkill(
+    int skillNumber,
+    Character& target
+)
+{
+    std::cout
+        << "This character does not have skills implemented yet.\n";
+}

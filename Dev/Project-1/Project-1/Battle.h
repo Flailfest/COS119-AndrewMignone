@@ -23,6 +23,7 @@ private:
     void enemyTurn(Character& enemy);
 
     void attackMenu(Character& character);
+    void skillMenu(Character& character);
 
     Character* chooseEnemyTarget();
 
@@ -37,4 +38,5 @@ public:
 
     Party& getPlayerParty();
     Party& getEnemyParty();
+
 };

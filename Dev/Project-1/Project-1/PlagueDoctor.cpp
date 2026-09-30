@@ -35,3 +35,29 @@ void PlagueDoctor::healAlly(Character& target)
 
     target.heal(4);
 }
+void PlagueDoctor::printSkills() const
+{
+    std::cout << "1. Plague Grenade\n";
+    std::cout << "2. Heal Ally\n";
+}
+
+void PlagueDoctor::useSkill(
+    int skillNumber,
+    Character& target
+)
+{
+    switch (skillNumber)
+    {
+    case 1:
+        plagueGrenade(target);
+        break;
+
+    case 2:
+        healAlly(target);
+        break;
+
+    default:
+        std::cout << "Invalid skill.\n";
+        break;
+    }
+}

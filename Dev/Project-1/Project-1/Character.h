@@ -24,12 +24,17 @@ protected:
     int position;
 
 public:
+
+
     // Constructor
     Character(const std::string& name, const Stats& stats);
 
     // Destructor
     virtual ~Character();
 
+
+    virtual void printSkills() const;
+    virtual void useSkill(int skillNumber, Character& target);
     // Getters
     const std::string& getName() const;
     int getHP() const;
