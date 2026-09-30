@@ -145,6 +145,7 @@
     <ClCompile Include="Enemy.cpp" />
     <ClCompile Include="Highwayman.cpp" />
     <ClCompile Include="Main.cpp" />
+    <ClCompile Include="Menu.cpp" />
     <ClCompile Include="Party.cpp" />
     <ClCompile Include="PlagueDoctor.cpp" />
     <ClCompile Include="rendering.cpp" />
@@ -153,9 +154,11 @@
   <ItemGroup>
     <ClInclude Include="Battle.h" />
     <ClInclude Include="Character.h" />
+    <ClInclude Include="CombatTest.h" />
     <ClInclude Include="Crusader.h" />
     <ClInclude Include="Enemy.h" />
     <ClInclude Include="Highwayman.h" />
+    <ClInclude Include="Menu.h" />
     <ClInclude Include="Party.h" />
     <ClInclude Include="PlagueDoctor.h" />
     <ClInclude Include="rendering.h" />

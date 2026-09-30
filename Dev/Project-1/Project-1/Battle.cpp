@@ -3,6 +3,16 @@
 #include <iostream>
 #include <random>
 
+void clearScreen()
+{
+#ifdef _WIN32
+    system("cls");
+#else
+    system("clear");
+
+#endif
+}
+
 Battle::Battle(Party& playerParty)
     : playerParty(playerParty),
     enemyCount(0)
@@ -136,59 +146,143 @@ void Battle::printCharacterStatus(
 
 void Battle::printBattleState() const
 {
-    std::cout << "\n";
-    std::cout << "====================================\n";
-    std::cout << "              BATTLE\n";
-    std::cout << "====================================\n";
+    const std::string GREEN = "\033[32m";
+    const std::string CRIMSON = "\033[38;5;88m";
+    const std::string RESET = "\033[0m";
 
     std::cout << "\n";
-    std::cout << "----------- YOUR PARTY ------------\n";
+    std::cout << "================================================================================\n";
+    std::cout << "                                  BATTLE\n";
+    std::cout << "================================================================================\n\n";
+
+    std::cout << GREEN
+        << "PLAYER PARTY"
+        << RESET;
+
+    std::cout << "                                  ";
+
+    std::cout << CRIMSON
+        << "ENEMY PARTY"
+        << RESET;
+
+    std::cout << "\n";
+
+    std::cout << "--------------------------------------------------------------------------------\n";
 
     for (int i = 1; i <= 4; i++)
     {
-        Character* character =
-            playerParty.getMember(i);
+        Character* player = playerParty.getMember(i);
+        Character* enemy = enemyParty.getMember(i);
 
-        if (character != nullptr)
+        // Player name
+        std::string playerName = "Empty";
+
+        if (player != nullptr)
         {
-            std::cout << "[" << i << "] ";
-            printCharacterStatus(*character);
+            playerName = player->getName();
         }
-        else
-        {
-            std::cout
-                << "["
-                << i
-                << "] EMPTY\n";
-        }
-    }
 
-    std::cout << "\n";
-    std::cout << "------------ ENEMIES --------------\n";
-
-    for (int i = 1; i <= 4; i++)
-    {
-        Character* enemy =
-            enemyParty.getMember(i);
+        // Enemy name
+        std::string enemyName = "Empty";
 
         if (enemy != nullptr)
         {
-            std::cout << "[" << i << "] ";
-
-            if (enemy->isAlive())
-            {
-                printCharacterStatus(*enemy);
-            }
-            else
-            {
-                std::cout
-                    << enemy->getName()
-                    << "  DEAD\n";
-            }
+            enemyName = enemy->getName();
         }
+
+        // Names
+        std::cout << GREEN
+            << i << ". " << playerName
+            << RESET;
+
+        // Fixed spacing between columns
+        std::cout << std::string(35 - playerName.length(), ' ');
+
+        std::cout << CRIMSON
+            << i << ". " << enemyName
+            << RESET;
+
+        std::cout << "\n";
+
+        // Player HP / Stress
+        if (player != nullptr)
+        {
+            std::cout << GREEN
+                << "   HP: "
+                << player->getHP()
+                << "/"
+                << player->getMaxHP()
+                << "   Stress: "
+                << player->getStress()
+                << "/200"
+                << RESET;
+        }
+        else
+        {
+            std::cout << GREEN
+                << "   HP: --   Stress: --"
+                << RESET;
+        }
+
+        // Fixed spacing
+        std::cout << std::string(35, ' ');
+
+        // Enemy HP
+        if (enemy != nullptr)
+        {
+            std::cout << CRIMSON
+                << "   HP: "
+                << enemy->getHP()
+                << "/"
+                << enemy->getMaxHP()
+                << RESET;
+        }
+        else
+        {
+            std::cout << CRIMSON
+                << "   HP: --"
+                << RESET;
+        }
+
+        std::cout << "\n";
+
+        // Player position
+        if (player != nullptr)
+        {
+            std::cout << GREEN
+                << "   Position: "
+                << player->getPosition()
+                << RESET;
+        }
+        else
+        {
+            std::cout << GREEN
+                << "   Position: --"
+                << RESET;
+        }
+
+        // Fixed spacing
+        std::cout << std::string(35, ' ');
+
+        // Enemy position
+        if (enemy != nullptr)
+        {
+            std::cout << CRIMSON
+                << "   Position: "
+                << enemy->getPosition()
+                << RESET;
+        }
+        else
+        {
+            std::cout << CRIMSON
+                << "   Position: --"
+                << RESET;
+        }
+
+        std::cout << "\n\n";
     }
 
-    std::cout << "====================================\n";
+    std::cout << "================================================================================\n";
 }
 
 bool Battle::playerPartyAlive() const
@@ -497,6 +591,10 @@ void Battle::playerTurn(Character& character)
 {
     while (true)
     {
+        clearScreen();
+
+        printBattleState();
+
         std::cout << "\n";
         std::cout << "====================================\n";
         std::cout << character.getName() << "'s Turn\n";
@@ -516,6 +614,7 @@ void Battle::playerTurn(Character& character)
         {
             std::cin.clear();
             std::cin.ignore(10000, '\n');
+
             std::cout << "Invalid input.\n";
             continue;
         }
@@ -534,7 +633,6 @@ void Battle::playerTurn(Character& character)
 
         if (choice == 3)
         {
-            printBattleState();
             continue;
         }
 
@@ -550,6 +648,11 @@ void Battle::playerTurn(Character& character)
 
 void Battle::enemyTurn(Character& enemy)
 {
+
+    clearScreen();
+
+    printBattleState();
+
     if (!enemy.isAlive())
     {
         return;

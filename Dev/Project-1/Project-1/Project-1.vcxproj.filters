@@ -51,6 +51,9 @@
     <ClCompile Include="Battle.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Menu.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="rendering.h">
@@ -78,6 +81,12 @@
       <Filter>Header Files\Character type .h%27s</Filter>
     </ClInclude>
     <ClInclude Include="Battle.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Menu.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="CombatTest.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
