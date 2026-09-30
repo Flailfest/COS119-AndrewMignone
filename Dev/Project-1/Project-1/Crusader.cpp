@@ -1,5 +1,6 @@
 #include "Crusader.h"
 
+
 #include <iostream>
 
 Crusader::Crusader()
@@ -15,23 +16,57 @@ Crusader::Crusader()
         })
 {
 }
+void Crusader::attack(Character& target)
+{
+    if (!canUseFromPosition(1, 2))
+    {
+        std::cout
+            << "Crusader cannot attack from this position.\n";
+
+        return;
+    }
+
+    if (!isTargetInRange(target, 1, 2))
+    {
+        std::cout
+            << "That target is out of range.\n";
+
+        return;
+    }
+
+    Character::attack(target);
+}
 
 void Crusader::holyStrike(Character& target)
 {
-    std::cout
-        << name
-        << " uses Holy Strike!\n";
+    if (!canUseFromPosition(1, 2))
+    {
+        std::cout
+            << "Crusader cannot use Smite from this position.\n";
+
+        return;
+    }
+
+    if (!isTargetInRange(target, 3, 4))
+    {
+        std::cout
+            << "That target is out of range for Smite.\n";
+
+        return;
+    }
 
     attack(target);
 }
 
 void Crusader::healAlly(Character& target)
 {
-    std::cout
-        << name
-        << " uses Inspiring Heal on "
-        << target.getName()
-        << "!\n";
+    if (!isTargetInRange(target, 1, 3))
+    {
+        std::cout
+            << "That ally is out of range.\n";
+
+        return;
+    }
 
     target.heal(5);
 }

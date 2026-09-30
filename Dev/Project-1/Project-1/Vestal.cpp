@@ -16,6 +16,23 @@ Vestal::Vestal()
 {
 }
 
+void Vestal::attack(Character& target)
+{
+    if (!canUseFromPosition(1, 4))
+    {
+        std::cout << "Vestal cannot attack from this position.\n";
+        return;
+    }
+
+    if (!isTargetInRange(target, 1, 2))
+    {
+        std::cout << "That target is out of range.\n";
+        return;
+    }
+
+    Character::attack(target);
+}
+
 void Vestal::healAlly(Character& target)
 {
     std::cout

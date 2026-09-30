@@ -68,4 +68,12 @@ public:
 
     // Display
     virtual void printInfo() const;
+
+    bool canUseFromPosition(int minimumPosition, int maximumPosition) const;
+
+    bool isTargetInRange(
+        const Character& target,
+        int minimumPosition,
+        int maximumPosition
+    ) const;
 };

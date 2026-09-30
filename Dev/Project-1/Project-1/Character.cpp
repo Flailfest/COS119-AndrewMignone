@@ -290,3 +290,23 @@ TargetType Character::getSkillTargetType(int skillNumber) const
 {
     return TargetType::Enemy;
 }
+bool Character::canUseFromPosition(
+    int minimumPosition,
+    int maximumPosition
+) const
+{
+    return position >= minimumPosition &&
+        position <= maximumPosition;
+}
+
+bool Character::isTargetInRange(
+    const Character& target,
+    int minimumPosition,
+    int maximumPosition
+) const
+{
+    int targetPosition = target.getPosition();
+
+    return targetPosition >= minimumPosition &&
+        targetPosition <= maximumPosition;
+}

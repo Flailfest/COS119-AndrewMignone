@@ -13,11 +13,11 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
-    <Filter Include="Character type .h%27s">
-      <UniqueIdentifier>{dbcb1c97-c4ff-45ed-a38c-4790314cef7f}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source Files\character type .cpp%27s">
       <UniqueIdentifier>{f91262a0-1b95-4c03-a31a-841ecd03f831}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Character type .h%27s">
+      <UniqueIdentifier>{dbcb1c97-c4ff-45ed-a38c-4790314cef7f}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -66,16 +66,16 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Vestal.h">
-      <Filter>Character type .h%27s</Filter>
+      <Filter>Header Files\Character type .h%27s</Filter>
     </ClInclude>
     <ClInclude Include="PlagueDoctor.h">
-      <Filter>Character type .h%27s</Filter>
+      <Filter>Header Files\Character type .h%27s</Filter>
     </ClInclude>
     <ClInclude Include="Highwayman.h">
-      <Filter>Character type .h%27s</Filter>
+      <Filter>Header Files\Character type .h%27s</Filter>
     </ClInclude>
     <ClInclude Include="Crusader.h">
-      <Filter>Character type .h%27s</Filter>
+      <Filter>Header Files\Character type .h%27s</Filter>
     </ClInclude>
     <ClInclude Include="Battle.h">
       <Filter>Header Files</Filter>

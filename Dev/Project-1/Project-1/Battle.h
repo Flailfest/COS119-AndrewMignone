@@ -22,10 +22,9 @@ private:
     void playerTurn(Character& character);
     void enemyTurn(Character& enemy);
 
-    void attackMenu(Character& character);
+    bool attackMenu(Character& character);
     void skillMenu(Character& character);
-
-    Character* chooseEnemyTarget();
+    Character* chooseEnemyTarget(Character& character, int minimumPosition, int maximumPosition);
     Character* chooseAllyTarget();
 
     bool playerPartyAlive() const;
