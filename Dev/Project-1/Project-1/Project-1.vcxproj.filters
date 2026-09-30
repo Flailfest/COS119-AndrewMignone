@@ -13,6 +13,12 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Character type .h%27s">
+      <UniqueIdentifier>{dbcb1c97-c4ff-45ed-a38c-4790314cef7f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\character type .cpp%27s">
+      <UniqueIdentifier>{f91262a0-1b95-4c03-a31a-841ecd03f831}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Main.cpp">
@@ -24,12 +30,54 @@
     <ClCompile Include="Character.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Enemy.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Party.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Highwayman.cpp">
+      <Filter>Source Files\character type .cpp%27s</Filter>
+    </ClCompile>
+    <ClCompile Include="Crusader.cpp">
+      <Filter>Source Files\character type .cpp%27s</Filter>
+    </ClCompile>
+    <ClCompile Include="PlagueDoctor.cpp">
+      <Filter>Source Files\character type .cpp%27s</Filter>
+    </ClCompile>
+    <ClCompile Include="Vestal.cpp">
+      <Filter>Source Files\character type .cpp%27s</Filter>
+    </ClCompile>
+    <ClCompile Include="Battle.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="rendering.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Character.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Enemy.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Party.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Vestal.h">
+      <Filter>Character type .h%27s</Filter>
+    </ClInclude>
+    <ClInclude Include="PlagueDoctor.h">
+      <Filter>Character type .h%27s</Filter>
+    </ClInclude>
+    <ClInclude Include="Highwayman.h">
+      <Filter>Character type .h%27s</Filter>
+    </ClInclude>
+    <ClInclude Include="Crusader.h">
+      <Filter>Character type .h%27s</Filter>
+    </ClInclude>
+    <ClInclude Include="Battle.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

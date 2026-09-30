@@ -21,6 +21,8 @@ protected:
     int currentHP;
     int stress;
 
+    int position;
+
 public:
     // Constructor
     Character(const std::string& name, const Stats& stats);
@@ -38,6 +40,7 @@ public:
     int getMaxDamage() const;
     int getCritChance() const;
     int getStress() const;
+    int getPosition() const;
 
     // State checks
     bool isAlive() const;
@@ -46,8 +49,10 @@ public:
     virtual void attack(Character& target);
     void takeDamage(int damage);
     void heal(int amount);
+    void setPosition(int newPosition);
 
     // Stress
+
     void addStress(int amount);
     void reduceStress(int amount);
 

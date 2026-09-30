@@ -1,49 +1,27 @@
-#include "Character.h"
-#include <iostream>
-
+#include "Vestal.h"
+#include "Crusader.h"
+#include "Highwayman.h"
+#include "PlagueDoctor.h"
+#include "Party.h"
+#include "Battle.h"
 
 int main()
 {
-    Stats crusaderStats
-    {
-        33, // maxHP
-        1,  // speed
-        85, // accuracy
-        6,  // minDamage
-        10, // maxDamage
-        5   // critChance
-    };
+    Crusader crusader;
+    Highwayman highwayman;
+    PlagueDoctor plagueDoctor;
+    Vestal vestal;
 
-    Character crusader(
-        "Crusader",
-        crusaderStats
-    );
+    Party playerParty;
 
-    Stats skeletonStats
-    {
-        20, // maxHP
-        2,  // speed
-        80, // accuracy
-        4,  // minDamage
-        7,  // maxDamage
-        2   // critChance
-    };
+    playerParty.addMember(crusader, 1);
+    playerParty.addMember(highwayman, 2);
+    playerParty.addMember(plagueDoctor, 3);
+    playerParty.addMember(vestal, 4);
 
-    Character skeleton(
-        "Skeleton",
-        skeletonStats
-    );
+    Battle battle(playerParty);
 
-    crusader.printInfo();
-    skeleton.printInfo();
-
-    crusader.attack(skeleton);
-
-    skeleton.addStress(10);
-
-    crusader.takeDamage(5);
-
-    crusader.heal(3);
+    battle.start();
 
     return 0;
 }

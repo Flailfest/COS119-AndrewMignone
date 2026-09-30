@@ -2,6 +2,7 @@
 
 #include <iostream>
 #include <algorithm>
+#include <random>
 
 // --------------------------------------------------
 // Constructor
@@ -14,7 +15,8 @@ Character::Character(
     : name(name),
     stats(stats),
     currentHP(stats.maxHP),
-    stress(0)
+    stress(0),
+    position(0)
 {
 }
 
@@ -75,6 +77,11 @@ int Character::getStress() const
     return stress;
 }
 
+int Character::getPosition() const
+{
+    return position;
+}
+
 // --------------------------------------------------
 // State checks
 // --------------------------------------------------
@@ -90,7 +97,18 @@ bool Character::isAlive() const
 
 void Character::attack(Character& target)
 {
-    int damage = stats.minDamage;
+    // Create a random number generator
+    static std::random_device rd;
+    static std::mt19937 generator(rd());
+
+    // Create a distribution between min and max damage
+    std::uniform_int_distribution<int> distribution(
+        stats.minDamage,
+        stats.maxDamage
+    );
+
+    // Generate the damage
+    int damage = distribution(generator);
 
     std::cout
         << name
@@ -193,6 +211,19 @@ void Character::reduceStress(int amount)
         << stress
         << "/200\n";
 }
+
+
+void Character::setPosition(int newPosition)
+{
+    if (newPosition < 0 || newPosition > 4)
+    {
+        std::cout << "Invalid position.\n";
+        return;
+    }
+
+    position = newPosition;
+}
+
 
 // --------------------------------------------------
 // Display
