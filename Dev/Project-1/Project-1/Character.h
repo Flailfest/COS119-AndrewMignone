@@ -1,0 +1,56 @@
+#pragma once
+
+#include <string>
+
+struct Stats
+{
+    int maxHP;
+    int speed;
+    int accuracy;
+    int minDamage;
+    int maxDamage;
+    int critChance;
+};
+
+class Character
+{
+protected:
+    std::string name;
+    Stats stats;
+
+    int currentHP;
+    int stress;
+
+public:
+    // Constructor
+    Character(const std::string& name, const Stats& stats);
+
+    // Destructor
+    virtual ~Character();
+
+    // Getters
+    const std::string& getName() const;
+    int getHP() const;
+    int getMaxHP() const;
+    int getSpeed() const;
+    int getAccuracy() const;
+    int getMinDamage() const;
+    int getMaxDamage() const;
+    int getCritChance() const;
+    int getStress() const;
+
+    // State checks
+    bool isAlive() const;
+
+    // Combat functions
+    virtual void attack(Character& target);
+    void takeDamage(int damage);
+    void heal(int amount);
+
+    // Stress
+    void addStress(int amount);
+    void reduceStress(int amount);
+
+    // Display
+    virtual void printInfo() const;
+};
