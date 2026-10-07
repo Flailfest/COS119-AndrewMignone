@@ -144,11 +144,13 @@
     <ClCompile Include="Crusader.cpp" />
     <ClCompile Include="Enemy.cpp" />
     <ClCompile Include="Highwayman.cpp" />
+    <ClCompile Include="Input.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="Menu.cpp" />
     <ClCompile Include="Party.cpp" />
     <ClCompile Include="PlagueDoctor.cpp" />
     <ClCompile Include="rendering.cpp" />
+    <ClCompile Include="Room.cpp" />
     <ClCompile Include="Vestal.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -158,10 +160,12 @@
     <ClInclude Include="Crusader.h" />
     <ClInclude Include="Enemy.h" />
     <ClInclude Include="Highwayman.h" />
+    <ClInclude Include="Input.h" />
     <ClInclude Include="Menu.h" />
     <ClInclude Include="Party.h" />
     <ClInclude Include="PlagueDoctor.h" />
     <ClInclude Include="rendering.h" />
+    <ClInclude Include="Room.h" />
     <ClInclude Include="Vestal.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
