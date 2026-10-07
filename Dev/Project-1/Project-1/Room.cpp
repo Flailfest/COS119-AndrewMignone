@@ -1,8 +1,18 @@
 #include "Room.h"
 #include "Battle.h"
+#include "Input.h"
 
 #include <iostream>
 #include <random>
+
+void clearRoomScreen()
+{
+#ifdef _WIN32
+    system("cls");
+#else
+    system("clear");
+#endif
+}
 
 Room::Room()
 {
@@ -49,12 +59,64 @@ bool Room::battleOccurs() const
 
 void Room::enter(Party& party)
 {
-    std::cout << "\n";
+    clearRoomScreen();
+
     std::cout << "====================================\n";
     std::cout << "           ENTERING ROOM\n";
-    std::cout << "====================================\n";
+    std::cout << "====================================\n\n";
+
+    switch (type)
+    {
+    case RoomType::Empty:
+        std::cout << "Room Type: Empty\n\n";
+        break;
+
+    case RoomType::Trap:
+        std::cout << "Room Type: Trap\n\n";
+        break;
+
+    case RoomType::Chest:
+        std::cout << "Room Type: Chest\n\n";
+        break;
+
+    case RoomType::Fountain:
+        std::cout << "Room Type: Fountain\n\n";
+        break;
+    }
+
+    std::cout << "The party moves through the room.\n";
+    std::cout << "Every hero gains 5 stress.\n\n";
+
+    for (int i = 1; i <= 4; i++)
+    {
+        Character* character = party.getMember(i);
+
+        if (character != nullptr && character->isAlive())
+        {
+            character->addStress(5);
+        }
+    }
 
     triggerEvent(party);
+
+    std::cout << "\n";
+    std::cout << "====================================\n";
+    std::cout << "          PARTY STRESS\n";
+    std::cout << "====================================\n";
+
+    for (int i = 1; i <= 4; i++)
+    {
+        Character* character = party.getMember(i);
+
+        if (character != nullptr)
+        {
+            std::cout
+                << character->getName()
+                << ": "
+                << character->getStress()
+                << "/200 Stress\n";
+        }
+    }
 
     std::cout << "\n";
 
@@ -63,12 +125,16 @@ void Room::enter(Party& party)
         std::cout << "The room is disturbed...\n";
         std::cout << "An enemy party appears!\n";
 
+        Input::waitForEnter();
+
         Battle battle(party);
         battle.start();
     }
     else
     {
-        std::cout << "The room is quiet.\n";
+        std::cout << "The room remains quiet.\n";
+
+        Input::waitForEnter();
     }
 }
 
@@ -96,31 +162,141 @@ void Room::triggerEvent(Party& party)
 
 void Room::triggerEmpty()
 {
-    std::cout << "The room is empty.\n";
+    std::cout << "Nothing of interest is found.\n";
 }
 
 void Room::triggerTrap(Party& party)
 {
-    std::cout << "You found a trap!\n";
+    std::cout << "A trap has been triggered!\n\n";
 
-    // Temporary placeholder.
-    // We will add actual trap behavior later.
+    // Additional 10 stress to every living hero.
+    for (int i = 1; i <= 4; i++)
+    {
+        Character* character = party.getMember(i);
+
+        if (character != nullptr && character->isAlive())
+        {
+            character->addStress(10);
+        }
+    }
+
+    std::cout << "The entire party gains 10 additional stress.\n\n";
+
+    // Build a list of living heroes.
+    Character* targets[4];
+    int targetCount = 0;
+
+    for (int i = 1; i <= 4; i++)
+    {
+        Character* character = party.getMember(i);
+
+        if (character != nullptr && character->isAlive())
+        {
+            targets[targetCount] = character;
+            targetCount++;
+        }
+    }
+
+    if (targetCount == 0)
+    {
+        return;
+    }
+
+    static std::random_device rd;
+    static std::mt19937 generator(rd());
+
+    std::uniform_int_distribution<int> targetDistribution(
+        0,
+        targetCount - 1
+    );
+
+    Character* target =
+        targets[targetDistribution(generator)];
+
+    // Random damage from 2-5.
+    std::uniform_int_distribution<int> damageDistribution(
+        2,
+        5
+    );
+
+    int damage = damageDistribution(generator);
+
+    target->takeDamage(damage);
+    target->addStress(5);
+
+    std::cout
+        << target->getName()
+        << " takes "
+        << damage
+        << " damage.\n";
+
+    std::cout
+        << target->getName()
+        << " gains 5 additional stress.\n";
 }
 
 void Room::triggerChest(Party& party)
 {
-    std::cout << "You found a chest!\n";
-
-    // Temporary placeholder.
-    // We will add rewards later.
+    std::cout << "A chest has been discovered!\n";
+    std::cout << "The chest has not been opened yet.\n";
 }
 
 void Room::triggerFountain(Party& party)
 {
-    std::cout << "You found a fountain!\n";
+    std::cout << "A fountain has been discovered!\n\n";
 
-    // Temporary placeholder.
-    // We will add healing/stress reduction later.
+    // Reduce stress for every living party member.
+    for (int i = 1; i <= 4; i++)
+    {
+        Character* character = party.getMember(i);
+
+        if (character != nullptr && character->isAlive())
+        {
+            character->reduceStress(10);
+        }
+    }
+
+    std::cout << "The party's stress is reduced by 10.\n\n";
+
+    // Display available party members.
+    std::cout << "Choose a hero to heal:\n";
+
+    for (int i = 1; i <= 4; i++)
+    {
+        Character* character = party.getMember(i);
+
+        if (character != nullptr && character->isAlive())
+        {
+            std::cout
+                << i << ". "
+                << character->getName()
+                << " ("
+                << character->getHP()
+                << "/"
+                << character->getMaxHP()
+                << " HP)\n";
+        }
+    }
+
+    int choice = Input::getInt("Choose a hero: ");
+
+    Character* target = party.getMember(choice);
+
+    // Make sure the selected position contains a living hero.
+    while (target == nullptr || !target->isAlive())
+    {
+        std::cout << "Invalid target.\n";
+
+        choice = Input::getInt("Choose a hero: ");
+
+        target = party.getMember(choice);
+    }
+
+    target->heal(3);
+
+    std::cout
+        << target->getName()
+        << " is healed for 3 HP.\n";
 }
 
 RoomType Room::getType() const
