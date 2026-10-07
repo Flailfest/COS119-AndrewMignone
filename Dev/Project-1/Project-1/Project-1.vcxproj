@@ -151,6 +151,7 @@
     <ClCompile Include="PlagueDoctor.cpp" />
     <ClCompile Include="rendering.cpp" />
     <ClCompile Include="Room.cpp" />
+    <ClCompile Include="RoomTest.cpp" />
     <ClCompile Include="Vestal.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -166,6 +167,7 @@
     <ClInclude Include="PlagueDoctor.h" />
     <ClInclude Include="rendering.h" />
     <ClInclude Include="Room.h" />
+    <ClInclude Include="RoomTest.h" />
     <ClInclude Include="Vestal.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

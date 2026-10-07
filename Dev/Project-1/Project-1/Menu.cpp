@@ -1,6 +1,7 @@
 #include "Menu.h"
 #include "CombatTest.h"
 #include "Input.h"
+#include "RoomTest.h"
 
 #include <iostream>
 
@@ -15,12 +16,14 @@ void runMainMenu()
         std::cout << "====================================\n\n";
 
         std::cout << "1. Battle Test\n";
-        std::cout << "2. Exit\n";
+        std::cout << "2. Room Test\n";
+        std::cout << "3. Exit\n";
+        
 
         int choice = Input::getIntInRange(
             "\nChoose an option: ",
             1,
-            2
+            3
         );
 
         if (choice == 1)
@@ -31,8 +34,17 @@ void runMainMenu()
 
             continue;
         }
-
         if (choice == 2)
+        {
+            RoomTest roomTest;
+            roomTest.run();
+
+            Input::waitForEnter();
+
+            continue;
+        }
+
+        if (choice == 3)
         {
             std::cout << "Goodbye!\n";
             return;
