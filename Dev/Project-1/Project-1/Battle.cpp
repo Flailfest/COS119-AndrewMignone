@@ -14,6 +14,29 @@ void clearScreen()
 #endif
 }
 
+bool stressOccurs()
+{
+    static std::random_device rd;
+    static std::mt19937 generator(rd());
+
+    std::uniform_int_distribution<int> distribution(1, 100);
+
+    return distribution(generator) <= 40;
+}
+
+int randomStress(int minimum, int maximum)
+{
+    static std::random_device rd;
+    static std::mt19937 generator(rd());
+
+    std::uniform_int_distribution<int> distribution(
+        minimum,
+        maximum
+    );
+
+    return distribution(generator);
+}
+
 Battle::Battle(Party& playerParty)
     : playerParty(playerParty),
     enemyCount(0)
@@ -580,6 +603,18 @@ void Battle::skillMenu(Character& character)
 
 void Battle::playerTurn(Character& character)
 {
+    bool gainedStress = false;
+    int stressIncrease = 0;
+
+    if (stressOccurs())
+    {
+        stressIncrease = randomStress(1, 3);
+
+        character.addStress(stressIncrease);
+
+        gainedStress = true;
+    }
+
     while (true)
     {
         clearScreen();
@@ -590,6 +625,23 @@ void Battle::playerTurn(Character& character)
         std::cout << "====================================\n";
         std::cout << character.getName() << "'s Turn\n";
         std::cout << "====================================\n";
+
+        if (gainedStress)
+        {
+            std::cout
+                << character.getName()
+                << " gains "
+                << stressIncrease
+                << " stress.\n";
+        }
+        else
+        {
+            std::cout
+                << character.getName()
+                << "'s Mind remains unbroken.\n";
+        }
+
+        std::cout << "\n";
 
         std::cout << "1. Attack\n";
         std::cout << "2. Skills\n";
@@ -620,7 +672,10 @@ void Battle::playerTurn(Character& character)
 
         if (choice == 4)
         {
-            std::cout << character.getName() << " passes.\n";
+            std::cout
+                << character.getName()
+                << " passes.\n";
+
             return;
         }
 
