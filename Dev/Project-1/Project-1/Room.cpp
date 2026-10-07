@@ -57,7 +57,10 @@ bool Room::battleOccurs() const
     return distribution(generator) <= 30;
 }
 
-void Room::enter(Party& party)
+void Room::enter(
+    Party& party,
+    LightLevel lightLevel
+)
 {
     clearRoomScreen();
 
@@ -68,32 +71,57 @@ void Room::enter(Party& party)
     switch (type)
     {
     case RoomType::Empty:
-        std::cout << "Room Type: Empty\n\n";
+        std::cout << "Room Type: Empty\n";
         break;
 
     case RoomType::Trap:
-        std::cout << "Room Type: Trap\n\n";
+        std::cout << "Room Type: Trap\n";
         break;
 
     case RoomType::Chest:
-        std::cout << "Room Type: Chest\n\n";
+        std::cout << "Room Type: Chest\n";
         break;
 
     case RoomType::Fountain:
-        std::cout << "Room Type: Fountain\n\n";
+        std::cout << "Room Type: Fountain\n";
         break;
     }
 
-    std::cout << "The party moves through the room.\n";
-    std::cout << "Every hero gains 5 stress.\n\n";
+    std::cout << "\n";
+
+    int stressAmount = 0;
+
+    switch (lightLevel)
+    {
+    case LightLevel::Bright:
+        stressAmount = 2;
+        std::cout << "Torchlight: Bright\n";
+        break;
+
+    case LightLevel::Dim:
+        stressAmount = 5;
+        std::cout << "Torchlight: Dim\n";
+        break;
+
+    case LightLevel::Off:
+        stressAmount = 10;
+        std::cout << "Torchlight: Off\n";
+        break;
+    }
+
+    std::cout
+        << "Each hero gains "
+        << stressAmount
+        << " stress.\n\n";
 
     for (int i = 1; i <= 4; i++)
     {
         Character* character = party.getMember(i);
 
-        if (character != nullptr && character->isAlive())
+        if (character != nullptr &&
+            character->isAlive())
         {
-            character->addStress(5);
+            character->addStress(stressAmount);
         }
     }
 
@@ -258,6 +286,31 @@ void Room::triggerFountain(Party& party)
 
     std::cout << "The party's stress is reduced by 10.\n\n";
 
+    // Check if anyone needs healing.
+    bool hasInjuredCharacter = false;
+
+    for (int i = 1; i <= 4; i++)
+    {
+        Character* character = party.getMember(i);
+
+        if (character != nullptr &&
+            character->isAlive() &&
+            character->getHP() < character->getMaxHP())
+        {
+            hasInjuredCharacter = true;
+            break;
+        }
+    }
+
+    // Nobody needs healing.
+    if (!hasInjuredCharacter)
+    {
+        std::cout
+            << "The entire party is at full health.\n";
+
+        return;
+    }
+
     // Display available party members.
     std::cout << "Choose a hero to heal:\n";
 
@@ -265,7 +318,8 @@ void Room::triggerFountain(Party& party)
     {
         Character* character = party.getMember(i);
 
-        if (character != nullptr && character->isAlive())
+        if (character != nullptr &&
+            character->isAlive())
         {
             std::cout
                 << i << ". "
@@ -278,16 +332,33 @@ void Room::triggerFountain(Party& party)
         }
     }
 
-    int choice = Input::getInt("Choose a hero: ");
+    std::cout << "0. Back\n";
+
+    int choice = Input::getInt(
+        "\nChoose a hero: "
+    );
+
+    if (choice == 0)
+    {
+        return;
+    }
 
     Character* target = party.getMember(choice);
 
-    // Make sure the selected position contains a living hero.
-    while (target == nullptr || !target->isAlive())
+    while (target == nullptr ||
+        !target->isAlive() ||
+        target->getHP() >= target->getMaxHP())
     {
         std::cout << "Invalid target.\n";
 
-        choice = Input::getInt("Choose a hero: ");
+        choice = Input::getInt(
+            "Choose a hero: "
+        );
+
+        if (choice == 0)
+        {
+            return;
+        }
 
         target = party.getMember(choice);
     }

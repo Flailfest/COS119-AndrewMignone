@@ -77,7 +77,8 @@ Character* choosePartyMember(Party& party)
 
 void openInventory(
     Inventory& inventory,
-    Party& party)
+    Party& party,
+    LightLevel& lightLevel)
 {
     while (true)
     {
@@ -86,6 +87,24 @@ void openInventory(
         inventory.printInventory();
 
         std::cout << "\n";
+
+        std::cout << "Torchlight: ";
+
+        if (lightLevel == LightLevel::Bright)
+        {
+            std::cout << "Bright\n";
+        }
+        else if (lightLevel == LightLevel::Dim)
+        {
+            std::cout << "Dim\n";
+        }
+        else
+        {
+            std::cout << "Off\n";
+        }
+
+        std::cout << "\n";
+
         std::cout << "====================================\n";
         std::cout << "          INVENTORY MENU\n";
         std::cout << "====================================\n\n";
@@ -147,10 +166,39 @@ void openInventory(
                 continue;
             }
 
+            if (lightLevel == LightLevel::Bright)
+            {
+                std::cout
+                    << "\nThe torchlight is already bright.\n";
+
+                Input::waitForEnter();
+                continue;
+            }
+
             inventory.useTorch();
 
+            if (lightLevel == LightLevel::Off)
+            {
+                lightLevel = LightLevel::Dim;
+            }
+            else if (lightLevel == LightLevel::Dim)
+            {
+                lightLevel = LightLevel::Bright;
+            }
+
             std::cout
-                << "\nYou light a torch.\n";
+                << "\nYou use a torch.\n";
+
+            std::cout << "Torchlight is now ";
+
+            if (lightLevel == LightLevel::Bright)
+            {
+                std::cout << "Bright.\n";
+            }
+            else if (lightLevel == LightLevel::Dim)
+            {
+                std::cout << "Dim.\n";
+            }
 
             Input::waitForEnter();
             continue;
@@ -211,11 +259,33 @@ void RoomTest::run()
 
     Inventory inventory(5, 3, 2);
 
+    LightLevel lightLevel = LightLevel::Bright;
+
+    int roomCount = 0;
+
     for (int i = 0; i < 5; i++)
     {
         Room room;
 
-        room.enter(playerParty);
+        room.enter(
+            playerParty,
+            lightLevel
+        );
+
+        roomCount++;
+
+        // Torchlight decreases every other room.
+        if (roomCount % 2 == 0)
+        {
+            if (lightLevel == LightLevel::Bright)
+            {
+                lightLevel = LightLevel::Dim;
+            }
+            else if (lightLevel == LightLevel::Dim)
+            {
+                lightLevel = LightLevel::Off;
+            }
+        }
 
         while (true)
         {
@@ -224,6 +294,23 @@ void RoomTest::run()
             std::cout << "====================================\n";
             std::cout << "          AFTER ROOM " << i + 1 << "\n";
             std::cout << "====================================\n\n";
+
+            std::cout << "Torchlight: ";
+
+            if (lightLevel == LightLevel::Bright)
+            {
+                std::cout << "Bright\n";
+            }
+            else if (lightLevel == LightLevel::Dim)
+            {
+                std::cout << "Dim\n";
+            }
+            else
+            {
+                std::cout << "Off\n";
+            }
+
+            std::cout << "\n";
 
             std::cout << "1. Continue to next room\n";
             std::cout << "2. Inventory\n";
@@ -242,7 +329,8 @@ void RoomTest::run()
             {
                 openInventory(
                     inventory,
-                    playerParty
+                    playerParty,
+                    lightLevel
                 );
 
                 continue;

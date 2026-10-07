@@ -10,6 +10,13 @@ enum class RoomType
     Fountain
 };
 
+enum class LightLevel
+{
+    Bright,
+    Dim,
+    Off
+};
+
 class Room
 {
 private:
@@ -28,7 +35,10 @@ private:
 public:
     Room();
 
-    void enter(Party& party);
+    void enter(
+        Party& party,
+        LightLevel lightLevel
+    );
 
     RoomType getType() const;
 };
