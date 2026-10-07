@@ -1,7 +1,9 @@
 #include "Battle.h"
+#include "Input.h"
 
 #include <iostream>
 #include <random>
+#include <iomanip>
 
 void clearScreen()
 {
@@ -9,7 +11,6 @@ void clearScreen()
     system("cls");
 #else
     system("clear");
-
 #endif
 }
 
@@ -150,16 +151,18 @@ void Battle::printBattleState() const
     const std::string CRIMSON = "\033[38;5;88m";
     const std::string RESET = "\033[0m";
 
+    const int COLUMN_WIDTH = 45;
+
     std::cout << "\n";
     std::cout << "================================================================================\n";
     std::cout << "                                  BATTLE\n";
     std::cout << "================================================================================\n\n";
 
     std::cout << GREEN
+        << std::left
+        << std::setw(COLUMN_WIDTH)
         << "PLAYER PARTY"
         << RESET;
-
-    std::cout << "                                  ";
 
     std::cout << CRIMSON
         << "ENEMY PARTY"
@@ -190,94 +193,108 @@ void Battle::printBattleState() const
             enemyName = enemy->getName();
         }
 
-        // Names
+        std::string playerNameLine =
+            std::to_string(i) + ". " + playerName;
+
+        std::string enemyNameLine =
+            std::to_string(i) + ". " + enemyName;
+
         std::cout << GREEN
-            << i << ". " << playerName
+            << std::left
+            << std::setw(COLUMN_WIDTH)
+            << playerNameLine
             << RESET;
 
-        // Fixed spacing between columns
-        std::cout << std::string(35 - playerName.length(), ' ');
-
         std::cout << CRIMSON
-            << i << ". " << enemyName
+            << enemyNameLine
             << RESET;
 
         std::cout << "\n";
 
         // Player HP / Stress
+        std::string playerStats;
+
         if (player != nullptr)
         {
-            std::cout << GREEN
-                << "   HP: "
-                << player->getHP()
-                << "/"
-                << player->getMaxHP()
-                << "   Stress: "
-                << player->getStress()
-                << "/200"
-                << RESET;
+            playerStats =
+                "   HP: " +
+                std::to_string(player->getHP()) +
+                "/" +
+                std::to_string(player->getMaxHP()) +
+                "   Stress: " +
+                std::to_string(player->getStress()) +
+                "/200";
         }
         else
         {
-            std::cout << GREEN
-                << "   HP: --   Stress: --"
-                << RESET;
+            playerStats = "   HP: --   Stress: --";
         }
-
-        // Fixed spacing
-        std::cout << std::string(35, ' ');
 
         // Enemy HP
+        std::string enemyStats;
+
         if (enemy != nullptr)
         {
-            std::cout << CRIMSON
-                << "   HP: "
-                << enemy->getHP()
-                << "/"
-                << enemy->getMaxHP()
-                << RESET;
+            enemyStats =
+                "   HP: " +
+                std::to_string(enemy->getHP()) +
+                "/" +
+                std::to_string(enemy->getMaxHP());
         }
         else
         {
-            std::cout << CRIMSON
-                << "   HP: --"
-                << RESET;
+            enemyStats = "   HP: --";
         }
+
+        std::cout << GREEN
+            << std::left
+            << std::setw(COLUMN_WIDTH)
+            << playerStats
+            << RESET;
+
+        std::cout << CRIMSON
+            << enemyStats
+            << RESET;
 
         std::cout << "\n";
 
         // Player position
+        std::string playerPosition;
+
         if (player != nullptr)
         {
-            std::cout << GREEN
-                << "   Position: "
-                << player->getPosition()
-                << RESET;
+            playerPosition =
+                "   Position: " +
+                std::to_string(player->getPosition());
         }
         else
         {
-            std::cout << GREEN
-                << "   Position: --"
-                << RESET;
+            playerPosition = "   Position: --";
         }
-
-        // Fixed spacing
-        std::cout << std::string(35, ' ');
 
         // Enemy position
+        std::string enemyPosition;
+
         if (enemy != nullptr)
         {
-            std::cout << CRIMSON
-                << "   Position: "
-                << enemy->getPosition()
-                << RESET;
+            enemyPosition =
+                "   Position: " +
+                std::to_string(enemy->getPosition());
         }
         else
         {
-            std::cout << CRIMSON
-                << "   Position: --"
-                << RESET;
+            enemyPosition = "   Position: --";
         }
+
+        std::cout << GREEN
+            << std::left
+            << std::setw(COLUMN_WIDTH)
+            << playerPosition
+            << RESET;
+
+        std::cout << CRIMSON
+            << enemyPosition
+            << RESET;
 
         std::cout << "\n\n";
     }
@@ -361,18 +378,10 @@ Character* Battle::chooseEnemyTarget(
         }
 
         std::cout << "0. Back\n";
-        std::cout << "Choose a target: ";
 
-        int choice;
-        std::cin >> choice;
-
-        if (std::cin.fail())
-        {
-            std::cin.clear();
-            std::cin.ignore(10000, '\n');
-            std::cout << "Invalid input.\n";
-            continue;
-        }
+        int choice = Input::getInt(
+            "Choose a target: "
+        );
 
         if (choice == 0)
             return nullptr;
@@ -390,6 +399,7 @@ Character* Battle::chooseEnemyTarget(
         return target;
     }
 }
+
 Character* Battle::chooseAllyTarget()
 {
     while (true)
@@ -419,21 +429,10 @@ Character* Battle::chooseAllyTarget()
 
         std::cout << "0. Back\n";
         std::cout << "\n";
-        std::cout << "Choose: ";
 
-        int choice;
-        std::cin >> choice;
-
-        if (std::cin.fail())
-        {
-            std::cin.clear();
-            std::cin.ignore(10000, '\n');
-
-            std::cout
-                << "Invalid input.\n";
-
-            continue;
-        }
+        int choice = Input::getInt(
+            "Choose: "
+        );
 
         if (choice == 0)
         {
@@ -476,6 +475,7 @@ bool Battle::attackMenu(Character& character)
     character.attack(*target);
     return true;
 }
+
 void Battle::skillMenu(Character& character)
 {
     while (true)
@@ -492,20 +492,10 @@ void Battle::skillMenu(Character& character)
         std::cout << "0. Back\n";
 
         std::cout << "\n";
-        std::cout << "Choose a skill: ";
 
-        int choice;
-        std::cin >> choice;
-
-        if (std::cin.fail())
-        {
-            std::cin.clear();
-            std::cin.ignore(10000, '\n');
-
-            std::cout << "Invalid input.\n";
-
-            continue;
-        }
+        int choice = Input::getInt(
+            "Choose a skill: "
+        );
 
         if (choice == 0)
         {
@@ -587,6 +577,7 @@ void Battle::skillMenu(Character& character)
         return;
     }
 }
+
 void Battle::playerTurn(Character& character)
 {
     while (true)
@@ -605,19 +596,10 @@ void Battle::playerTurn(Character& character)
         std::cout << "3. Party Status\n";
         std::cout << "4. Pass\n";
         std::cout << "\n";
-        std::cout << "Choose an action: ";
 
-        int choice;
-        std::cin >> choice;
-
-        if (std::cin.fail())
-        {
-            std::cin.clear();
-            std::cin.ignore(10000, '\n');
-
-            std::cout << "Invalid input.\n";
-            continue;
-        }
+        int choice = Input::getInt(
+            "Choose an action: "
+        );
 
         if (choice == 1)
         {
@@ -648,7 +630,6 @@ void Battle::playerTurn(Character& character)
 
 void Battle::enemyTurn(Character& enemy)
 {
-
     clearScreen();
 
     printBattleState();
