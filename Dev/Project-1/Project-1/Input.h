@@ -13,4 +13,7 @@ namespace Input
     );
 
     void waitForEnter();
+
 }
+
+
