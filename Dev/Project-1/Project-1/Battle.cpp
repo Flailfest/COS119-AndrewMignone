@@ -176,21 +176,25 @@ void Battle::printBattleState() const
 
     const int COLUMN_WIDTH = 45;
 
+    // Align the enemy column based on visible text length.
+    auto printColumnGap = [](const std::string& text)
+        {
+            int spaces = 45 - static_cast<int>(text.length());
+
+            if (spaces < 1)
+                spaces = 1;
+
+            std::cout << std::string(spaces, ' ');
+        };
+
     std::cout << "\n";
     std::cout << "================================================================================\n";
     std::cout << "                                  BATTLE\n";
     std::cout << "================================================================================\n\n";
 
-    std::cout << GREEN
-        << std::left
-        << std::setw(COLUMN_WIDTH)
-        << "PLAYER PARTY"
-        << RESET;
-
-    std::cout << CRIMSON
-        << "ENEMY PARTY"
-        << RESET;
-
+    std::cout << GREEN << "PLAYER PARTY" << RESET;
+    std::cout << std::string(COLUMN_WIDTH - 12, ' ');
+    std::cout << CRIMSON << "ENEMY PARTY" << RESET;
     std::cout << "\n";
 
     std::cout << "--------------------------------------------------------------------------------\n";
@@ -200,41 +204,27 @@ void Battle::printBattleState() const
         Character* player = playerParty.getMember(i);
         Character* enemy = enemyParty.getMember(i);
 
-        // Player name
-        std::string playerName = "Empty";
+        // Character names
+        std::string playerName;
+        std::string enemyName;
 
         if (player != nullptr)
-        {
-            playerName = player->getName();
-        }
-
-        // Enemy name
-        std::string enemyName = "Empty";
+            playerName = std::to_string(i) + ". " + player->getName();
 
         if (enemy != nullptr)
-        {
-            enemyName = enemy->getName();
-        }
+            enemyName = std::to_string(i) + ". " + enemy->getName();
 
-        std::string playerNameLine =
-            std::to_string(i) + ". " + playerName;
+        if (player != nullptr)
+            std::cout << GREEN << playerName << RESET;
 
-        std::string enemyNameLine =
-            std::to_string(i) + ". " + enemyName;
+        printColumnGap(playerName);
 
-        std::cout << GREEN
-            << std::left
-            << std::setw(COLUMN_WIDTH)
-            << playerNameLine
-            << RESET;
-
-        std::cout << CRIMSON
-            << enemyNameLine
-            << RESET;
+        if (enemy != nullptr)
+            std::cout << CRIMSON << enemyName << RESET;
 
         std::cout << "\n";
 
-        // Player HP / Stress
+        // Player HP and stress
         std::string playerStats;
 
         if (player != nullptr)
@@ -247,37 +237,23 @@ void Battle::printBattleState() const
                 "   Stress: " +
                 std::to_string(player->getStress()) +
                 "/200";
+
+            std::cout << GREEN << playerStats << RESET;
         }
-        else
-        {
-            playerStats = "   HP: --   Stress: --";
-        }
+
+        printColumnGap(playerStats);
 
         // Enemy HP
-        std::string enemyStats;
-
         if (enemy != nullptr)
         {
-            enemyStats =
+            std::string enemyStats =
                 "   HP: " +
                 std::to_string(enemy->getHP()) +
                 "/" +
                 std::to_string(enemy->getMaxHP());
-        }
-        else
-        {
-            enemyStats = "   HP: --";
-        }
 
-        std::cout << GREEN
-            << std::left
-            << std::setw(COLUMN_WIDTH)
-            << playerStats
-            << RESET;
-
-        std::cout << CRIMSON
-            << enemyStats
-            << RESET;
+            std::cout << CRIMSON << enemyStats << RESET;
+        }
 
         std::cout << "\n";
 
@@ -289,35 +265,21 @@ void Battle::printBattleState() const
             playerPosition =
                 "   Position: " +
                 std::to_string(player->getPosition());
+
+            std::cout << GREEN << playerPosition << RESET;
         }
-        else
-        {
-            playerPosition = "   Position: --";
-        }
+
+        printColumnGap(playerPosition);
 
         // Enemy position
-        std::string enemyPosition;
-
         if (enemy != nullptr)
         {
-            enemyPosition =
+            std::string enemyPosition =
                 "   Position: " +
                 std::to_string(enemy->getPosition());
-        }
-        else
-        {
-            enemyPosition = "   Position: --";
-        }
 
-        std::cout << GREEN
-            << std::left
-            << std::setw(COLUMN_WIDTH)
-            << playerPosition
-            << RESET;
-
-        std::cout << CRIMSON
-            << enemyPosition
-            << RESET;
+            std::cout << CRIMSON << enemyPosition << RESET;
+        }
 
         std::cout << "\n\n";
     }

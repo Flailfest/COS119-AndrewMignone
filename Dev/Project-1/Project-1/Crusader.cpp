@@ -39,23 +39,22 @@ void Crusader::attack(Character& target)
 
 void Crusader::holyStrike(Character& target)
 {
+    // Crusader must be in position 1 or 2 to use Holy Strike.
     if (!canUseFromPosition(1, 2))
     {
-        std::cout
-            << "Crusader cannot use Smite from this position.\n";
-
+        std::cout << "Crusader cannot use Holy Strike from this position.\n";
         return;
     }
 
+    // Holy Strike can target enemy positions 3 or 4.
     if (!isTargetInRange(target, 3, 4))
     {
-        std::cout
-            << "That target is out of range for Smite.\n";
-
+        std::cout << "That target is out of range for Holy Strike.\n";
         return;
     }
 
-    attack(target);
+    // Use the base attack directly to avoid the basic attack's range checks.
+    Character::attack(target);
 }
 
 void Crusader::healAlly(Character& target)
