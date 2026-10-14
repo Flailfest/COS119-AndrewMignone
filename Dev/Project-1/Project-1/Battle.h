@@ -24,6 +24,9 @@ private:
 
     // Stores the most recent combat action for the next screen redraw.
     std::string lastActionMessage;
+    // Stores the narrator's current line.
+// It remains unchanged while the same turn's menu is open.
+    std::string narratorMessage;
 
     void printBattleState() const;
     void printCharacterStatus(const Character& character) const;

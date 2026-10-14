@@ -287,6 +287,59 @@ Enemy* Battle::createRandomEnemy()
     return nullptr;
 }
 
+
+
+// Selects one random line from a list of narrator phrases.
+std::string getRandomNarration(bool playerTurn)
+{
+    static std::random_device rd;
+    static std::mt19937 generator(rd());
+
+    // Different narration pools for heroes and enemies.
+    static const std::string playerLines[] =
+    {
+        "The cellar holds its breath.",
+        "Courage falters, but the fight continues.",
+        "Steel may yet prevail against this darkness.",
+        "Every step forward demands a price.",
+        "The shadows stir around the living.",
+        "There is no safety here. Only survival.",
+        "Resolve is tested in the face of horror.",
+        "The darkness waits for a moment of weakness."
+    };
+
+    static const std::string enemyLines[] =
+    {
+        "Something vile stirs in the darkness.",
+        "The cellar hungers for another soul.",
+        "A foul presence moves against the party.",
+        "The darkness strikes without mercy.",
+        "The creatures of this place know no fear.",
+        "The stench of death grows stronger.",
+        "An unnatural silence precedes the violence.",
+        "The horrors here will not yield easily."
+    };
+
+    // Count the phrases available in each array.
+    const int phraseCount = 8;
+
+    // Pick a random phrase index.
+    std::uniform_int_distribution<int> distribution(
+        0,
+        phraseCount - 1
+    );
+
+    int index = distribution(generator);
+
+    // Return a phrase appropriate to the current side.
+    if (playerTurn)
+    {
+        return playerLines[index];
+    }
+
+    return enemyLines[index];
+}
+
 // --------------------------------------------------
 // Battle display
 // --------------------------------------------------
@@ -431,6 +484,17 @@ void Battle::printBattleState() const
         std::cout
             << "--------------------------------------------------------------------------------\n";
     }
+    const std::string GOLD = "\033[38;5;180m";
+    
+
+    std::cout << "\n";
+    std::cout << GOLD;
+    std::cout << "===============================================\n";
+    std::cout << "                  NARRATOR\n";
+    std::cout << "===============================================\n";
+    std::cout << "\"" << narratorMessage << "\"\n";
+    std::cout << "===============================================\n";
+    std::cout << RESET << "\n";
 
 
     // ==================================================
@@ -1643,6 +1707,8 @@ void Battle::skillMenu(Character& character)
 
 void Battle::playerTurn(Character& character)
 {
+    narratorMessage = getRandomNarration(true);
+
     // Roll for stress once at the start of the turn.
     // Opening menus or redrawing the screen won't reroll it.
     bool gainedStress = false;
@@ -1747,29 +1813,74 @@ void Battle::playerTurn(Character& character)
 // Enemy turn
 // --------------------------------------------------
 
+
 void Battle::enemyTurn(Character& enemy)
 {
+    narratorMessage = getRandomNarration(false);
+    // ==================================================
+    // 1. PREPARE THE BATTLE SCREEN
+    // ==================================================
+    //
+    // Clear the previous console output and redraw the
+    // current battle state before the enemy takes action.
+    //
+    // This lets the player see the current HP values and
+    // formation positions before the enemy attacks.
+
     clearScreen();
     printBattleState();
+
+
+    // ==================================================
+    // 2. CHECK WHETHER THE ENEMY CAN ACT
+    // ==================================================
+    //
+    // Defeated enemies must not take turns.
+    //
+    // This safety check prevents an enemy that has already
+    // been defeated from attacking.
 
     if (!enemy.isAlive())
     {
         return;
     }
 
+
+    // ==================================================
+    // 3. DISPLAY THE ENEMY'S TURN
+    // ==================================================
+    //
+    // Print a small heading so the player knows which
+    // enemy is about to perform its action.
+
     std::cout << "\n";
     std::cout << "------------------------------------\n";
     std::cout << enemy.getName() << "'s turn!\n";
     std::cout << "------------------------------------\n";
 
-    // Collect living player characters.
+
+    // ==================================================
+    // 4. COLLECT LIVING PLAYER CHARACTERS
+    // ==================================================
+    //
+    // Build an array containing only living members of
+    // the player's party.
+    //
+    // The enemy will randomly choose one of these heroes.
+    //
+    // We store Character pointers because the party
+    // already owns and manages the actual characters.
+    // We do not create copies of the characters here.
+
     Character* targets[4];
     int targetCount = 0;
 
-    for (int i = 1; i <= 4; i++)
+    for (int position = 1; position <= 4; position++)
     {
-        Character* target = playerParty.getMember(i);
+        Character* target =
+            playerParty.getMember(position);
 
+        // Ignore empty slots and defeated characters.
         if (target != nullptr && target->isAlive())
         {
             targets[targetCount] = target;
@@ -1777,13 +1888,49 @@ void Battle::enemyTurn(Character& enemy)
         }
     }
 
+
+    // ==================================================
+    // 5. CHECK WHETHER ANY HEROES REMAIN
+    // ==================================================
+    //
+    // If no living targets were found, the enemy has
+    // nobody to attack.
+    //
+    // Return immediately to avoid attempting to select
+    // a target from an empty array.
+
     if (targetCount == 0)
     {
         return;
     }
 
+
+    // ==================================================
+    // 6. INITIALIZE THE RANDOM GENERATOR
+    // ==================================================
+    //
+    // The random generator is reused for:
+    // - Selecting an enemy's target.
+    // - Determining whether repositioning happens.
+    // - Choosing the destination position.
+    //
+    // The static declarations ensure the generator is
+    // initialized once and reused on later enemy turns.
+
     static std::random_device rd;
     static std::mt19937 generator(rd());
+
+
+    // ==================================================
+    // 7. SELECT A RANDOM PLAYER TARGET
+    // ==================================================
+    //
+    // Choose a random index from the array of living
+    // heroes.
+    //
+    // Because the array contains only living characters,
+    // the enemy cannot deliberately select an empty slot
+    // or a defeated hero.
 
     std::uniform_int_distribution<int> targetDistribution(
         0,
@@ -1793,18 +1940,257 @@ void Battle::enemyTurn(Character& enemy)
     Character* target =
         targets[targetDistribution(generator)];
 
+
+    // ==================================================
+    // 8. RECORD THE TARGET'S HP BEFORE THE ATTACK
+    // ==================================================
+    //
+    // Save the target's current HP before damage occurs.
+    //
+    // Comparing HP before and after the attack lets us
+    // calculate the amount of HP actually lost.
+
+    int hpBefore = target->getHP();
+
+
+    // ==================================================
+    // 9. EXECUTE THE ENEMY ATTACK
+    // ==================================================
+    //
+    // The enemy performs its normal attack against the
+    // selected player character.
+    //
+    // Character::attack() currently handles the damage
+    // calculation and applies that damage to the target.
+
     enemy.attack(*target);
 
-    // Only player characters gain stress when attacked.
+
+    // ==================================================
+    // 10. CALCULATE THE ACTUAL DAMAGE
+    // ==================================================
+    //
+    // Example:
+    // HP before attack = 26
+    // HP after attack  = 21
+    // Actual HP lost   = 5
+    //
+    // This reports the actual HP reduction, rather than
+    // assuming the target always loses the full damage
+    // rolled by the attack.
+
+    int damageDealt = hpBefore - target->getHP();
+
+
+    // ==================================================
+    // 11. APPLY STRESS TO THE PLAYER TARGET
+    // ==================================================
+    //
+    // Only the player party gains stress when attacked.
+    //
+    // The target receives between 1 and 4 stress.
+    // randomStress() is your existing random stress helper.
+    //
+    // Your Character::addStress() method handles the
+    // stress limit, so this function does not need to
+    // clamp the value itself.
+
     int stressIncrease = randomStress(1, 4);
+
     target->addStress(stressIncrease);
 
-    std::cout
-        << target->getName()
-        << " gains "
-        << stressIncrease
-        << " stress from the attack.\n";
+
+    // ==================================================
+    // 12. CREATE THE INITIAL ACTION MESSAGE
+    // ==================================================
+    //
+    // lastActionMessage is displayed by
+    // printBattleState() after the screen redraws.
+    //
+    // Store the attack result and stress increase now.
+    // If the target is subsequently repositioned, we
+    // append that information to this same message.
+
+    lastActionMessage =
+        enemy.getName() +
+        " attacks " +
+        target->getName() +
+        " for " +
+        std::to_string(damageDealt) +
+        " damage. " +
+        target->getName() +
+        " gains " +
+        std::to_string(stressIncrease) +
+        " stress.";
+
+
+    // ==================================================
+    // 13. CHECK WHETHER THE TARGET WAS DEFEATED
+    // ==================================================
+    //
+    // A defeated hero cannot be repositioned by this
+    // effect.
+    //
+    // Record their defeat in the action message so the
+    // result remains visible after the next redraw.
+
+    if (!target->isAlive())
+    {
+        lastActionMessage +=
+            " " +
+            target->getName() +
+            " has been defeated!";
+    }
+
+
+    // ==================================================
+    // 14. ROLL FOR RANDOM REPOSITIONING
+    // ==================================================
+    //
+    // Only a surviving hero can be repositioned.
+    //
+    // A roll from 1 to 100 gives a 25% chance when the
+    // result is 25 or lower.
+    //
+    // The repositioning happens after the damage and
+    // stress are applied.
+
+    if (target->isAlive())
+    {
+        std::uniform_int_distribution<int> displacementChance(
+            1,
+            100
+        );
+
+        if (displacementChance(generator) <= 25)
+        {
+            // ==========================================
+            // 15. GET THE TARGET'S CURRENT POSITION
+            // ==========================================
+            //
+            // Retrieve the current position through Party.
+            // Party delegates position lookup to Formation.
+            //
+            // We do not directly edit Character's position
+            // field because Formation must stay synchronized.
+
+            int fromPosition =
+                playerParty.getPosition(*target);
+
+
+            // ==========================================
+            // 16. SELECT A DIFFERENT DESTINATION
+            // ==========================================
+            //
+            // Randomly select a destination from positions
+            // 1 through 4.
+            //
+            // The loop rejects the current position so the
+            // character is guaranteed to change positions.
+
+            std::uniform_int_distribution<int> positionDistribution(
+                1,
+                4
+            );
+
+            int toPosition;
+
+            do
+            {
+                toPosition = positionDistribution(generator);
+            } while (toPosition == fromPosition);
+
+
+            // ==========================================
+            // 17. CHECK THE DESTINATION OCCUPANT
+            // ==========================================
+            //
+            // Formation::moveMember() swaps characters when
+            // the destination is occupied.
+            //
+            // Save the destination occupant before moving
+            // anyone so we can describe the result later.
+
+            Character* displacedCharacter =
+                playerParty.getMember(toPosition);
+
+
+            // ==========================================
+            // 18. MOVE THE CHARACTER THROUGH FORMATION
+            // ==========================================
+            //
+            // Request the movement through Party instead
+            // of changing the character's position directly.
+            //
+            // This updates the formation slots and keeps
+            // position-dependent attack and skill rules
+            // working with the new arrangement.
+
+            bool moved = playerParty.moveMember(
+                fromPosition,
+                toPosition
+            );
+
+
+            // ==========================================
+            // 19. APPEND THE REPOSITIONING MESSAGE
+            // ==========================================
+            //
+            // If the move succeeds, append the movement
+            // result to the existing attack message.
+            //
+            // This way the LAST ACTION display reports
+            // both the damage and the repositioning event.
+
+            if (moved)
+            {
+                if (displacedCharacter != nullptr)
+                {
+                    // The destination was occupied, so
+                    // Formation swapped the two characters.
+
+                    lastActionMessage +=
+                        " " +
+                        target->getName() +
+                        " is knocked from position " +
+                        std::to_string(fromPosition) +
+                        " to position " +
+                        std::to_string(toPosition) +
+                        ", swapping places with " +
+                        displacedCharacter->getName() +
+                        ".";
+                }
+                else
+                {
+                    // The destination was empty, so the
+                    // target simply moved into that slot.
+
+                    lastActionMessage +=
+                        " " +
+                        target->getName() +
+                        " is knocked from position " +
+                        std::to_string(fromPosition) +
+                        " to position " +
+                        std::to_string(toPosition) +
+                        ".";
+                }
+            }
+        }
+    }
+
+
+    // ==================================================
+    // 20. ENEMY TURN COMPLETE
+    // ==================================================
+    //
+    // The attack, stress increase, and possible
+    // repositioning are complete.
+    //
+    // Battle::start() will continue processing the round.
+    // The next screen redraw will display lastActionMessage
+    // and the updated formation positions.
 }
+
 
 // --------------------------------------------------
 // Start battle
