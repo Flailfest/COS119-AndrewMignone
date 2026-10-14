@@ -31,6 +31,9 @@
     <Filter Include="Source Files\Character Items.cpp\character type .cpp%27s">
       <UniqueIdentifier>{f91262a0-1b95-4c03-a31a-841ecd03f831}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Documentation%27">
+      <UniqueIdentifier>{7d42e5b1-7aca-4a10-b403-fdd6b54a9496}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Main.cpp">
@@ -131,5 +134,10 @@
     <ClInclude Include="Formation.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="Battle_comments_and_documentation.txt">
+      <Filter>Documentation%27</Filter>
+    </Text>
   </ItemGroup>
 </Project>

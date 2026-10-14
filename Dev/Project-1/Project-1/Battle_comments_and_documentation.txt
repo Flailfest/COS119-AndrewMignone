@@ -1,0 +1,1355 @@
+BATTLE.CPP — COMMENT AND DOCUMENTATION REFERENCE
+====================================================
+
+The cleaned source replaces explanatory comments with numbered markers.
+Search Battle_clean.cpp for a marker (for example, // 1.1) to locate it.
+Entries below preserve the original comment wording, grouped by marker.
+
+1.1  [original Battle.cpp line(s) 11-13]
+-------------------------------------------
+--------------------------------------------------
+Position rules
+--------------------------------------------------
+
+1.2  [original Battle.cpp line(s) 65-65]
+-------------------------------------------
+Default rules for skills that target allies.
+
+1.3  [original Battle.cpp line(s) 70-70]
+-------------------------------------------
+Holy Strike
+
+1.4  [original Battle.cpp line(s) 76-76]
+-------------------------------------------
+Heal Ally
+
+1.5  [original Battle.cpp line(s) 84-84]
+-------------------------------------------
+Pistol Shot
+
+1.6  [original Battle.cpp line(s) 90-90]
+-------------------------------------------
+Melee Attack
+
+1.7  [original Battle.cpp line(s) 99-99]
+-------------------------------------------
+Plague Grenade
+
+1.8  [original Battle.cpp line(s) 105-105]
+-------------------------------------------
+Heal Ally
+
+1.9  [original Battle.cpp line(s) 114-114]
+-------------------------------------------
+Smite
+
+1.10  [original Battle.cpp line(s) 120-120]
+--------------------------------------------
+Heal Ally
+
+1.11  [original Battle.cpp line(s) 176-178]
+--------------------------------------------
+--------------------------------------------------
+Screen clearing
+--------------------------------------------------
+
+1.12  [original Battle.cpp line(s) 189-191]
+--------------------------------------------
+--------------------------------------------------
+Constructor / destructor
+--------------------------------------------------
+
+1.13  [original Battle.cpp line(s) 214-216]
+--------------------------------------------
+--------------------------------------------------
+Enemy generation
+--------------------------------------------------
+
+1.14  [original Battle.cpp line(s) 292-292]
+--------------------------------------------
+Selects one random line from a list of narrator phrases.
+
+1.15  [original Battle.cpp line(s) 298-298]
+--------------------------------------------
+Different narration pools for heroes and enemies.
+
+1.16  [original Battle.cpp line(s) 323-323]
+--------------------------------------------
+Count the phrases available in each array.
+
+1.17  [original Battle.cpp line(s) 326-326]
+--------------------------------------------
+Pick a random phrase index.
+
+1.18  [original Battle.cpp line(s) 334-334]
+--------------------------------------------
+Return a phrase appropriate to the current side.
+
+1.19  [original Battle.cpp line(s) 343-345]
+--------------------------------------------
+--------------------------------------------------
+Battle display
+--------------------------------------------------
+
+1.20  [original Battle.cpp line(s) 366-377]
+--------------------------------------------
+==================================================
+1. DISPLAY SETTINGS
+==================================================
+
+GREEN   = Player party
+CRIMSON = Enemy party
+GOLD    = Narrator
+RESET   = Restore the default console color
+
+The panel width is kept at 100 characters.
+This leaves room for the interface in a terminal
+configured for approximately 120 columns.
+
+1.21  [original Battle.cpp line(s) 388-399]
+--------------------------------------------
+==================================================
+2. TEXT WRAPPING HELPER
+==================================================
+
+Long narration and action messages can exceed the
+available width of the screen.
+
+This lambda wraps the text at word boundaries,
+rather than allowing long messages to stretch the
+entire battle interface horizontally.
+
+It prints two leading spaces for visual padding.
+
+1.22  [original Battle.cpp line(s) 414-414]
+--------------------------------------------
+Find the maximum end position for this line.
+
+1.23  [original Battle.cpp line(s) 422-423]
+--------------------------------------------
+If the text continues, prefer breaking at
+the last space before the width limit.
+
+1.24  [original Battle.cpp line(s) 436-436]
+--------------------------------------------
+Print the current line.
+
+1.25  [original Battle.cpp line(s) 442-443]
+--------------------------------------------
+Start the next line and skip any spaces
+left behind by the previous line break.
+
+1.26  [original Battle.cpp line(s) 455-466]
+--------------------------------------------
+==================================================
+3. MESSAGE PANEL HELPER
+==================================================
+
+Both the narrator and last-action messages use
+the same panel layout.
+
+This avoids duplicating border, heading, and
+text-wrapping code.
+
+The supplied color allows each panel to have
+its own visual identity.
+
+1.27  [original Battle.cpp line(s) 505-513]
+--------------------------------------------
+==================================================
+5. NARRATOR PANEL
+==================================================
+
+The narrator is now displayed BEFORE the party
+formations, so the player sees the narrative first.
+
+If no narration has been assigned yet, display a
+default line instead of an empty message.
+
+1.28  [original Battle.cpp line(s) 531-540]
+--------------------------------------------
+==================================================
+6. PARTY HEADERS
+==================================================
+
+The two parties appear side by side:
+
+PLAYER PARTY                         ENEMY PARTY
+
+We use a fixed player-column width so that
+enemy information begins at a consistent column.
+
+1.29  [original Battle.cpp line(s) 560-576]
+--------------------------------------------
+==================================================
+7. DISPLAY THE FORMATIONS
+==================================================
+
+Each occupied position is now displayed on ONE
+line instead of using separate lines for names,
+HP/stress, and position.
+
+This significantly reduces the total screen height.
+
+Player information:
+Name | HP | Stress | Position
+
+Enemy information:
+Name | HP | Position
+
+Empty enemy slots are still omitted.
+
+1.30  [original Battle.cpp line(s) 587-593]
+--------------------------------------------
+----------------------------------------------
+PLAYER INFORMATION
+----------------------------------------------
+
+Build the complete player row as a string.
+Keeping it as a string makes the column spacing
+independent of the ANSI color codes.
+
+1.31  [original Battle.cpp line(s) 616-622]
+--------------------------------------------
+----------------------------------------------
+ENEMY INFORMATION
+----------------------------------------------
+
+The enemy row contains HP and position.
+Enemy stress is not displayed because the
+current battle system only uses stress for heroes.
+
+1.32  [original Battle.cpp line(s) 643-651]
+--------------------------------------------
+----------------------------------------------
+PRINT THE TWO COLUMNS
+----------------------------------------------
+
+setw() pads the player column to a fixed width.
+
+The color is applied only when the string is
+printed. As a result, color escape codes do not
+interfere with the visible column alignment.
+
+1.33  [original Battle.cpp line(s) 672-677]
+--------------------------------------------
+==================================================
+8. END OF PARTY DISPLAY
+==================================================
+
+The last-action panel now comes AFTER all party
+information, as requested.
+
+1.34  [original Battle.cpp line(s) 684-695]
+--------------------------------------------
+==================================================
+9. LAST ACTION PANEL
+==================================================
+
+lastActionMessage is assigned by attackMenu(),
+skillMenu(), and enemyTurn().
+
+This section only displays it.
+
+Long action messages automatically wrap, including
+messages describing damage, stress, defeats, and
+forced character movement.
+
+1.35  [original Battle.cpp line(s) 718-726]
+--------------------------------------------
+==================================================
+1. DISPLAY THE CURRENT FORMATION
+==================================================
+
+Clear the console and redraw the battle state so
+the player can see the current positions.
+
+Party::printFormation() displays positions 1-4.
+Party delegates formation management to Formation.
+
+1.36  [original Battle.cpp line(s) 743-751]
+--------------------------------------------
+==================================================
+2. SELECT THE CHARACTER TO MOVE
+==================================================
+
+The player selects a formation position, not
+a character name.
+
+Position 0 cancels the operation and returns
+to the character's action menu.
+
+1.37  [original Battle.cpp line(s) 765-765]
+--------------------------------------------
+Retrieve the character occupying that position.
+
+1.38  [original Battle.cpp line(s) 771-771]
+--------------------------------------------
+A position must contain a character.
+
+1.39  [original Battle.cpp line(s) 782-782]
+--------------------------------------------
+Only living characters can be selected to move.
+
+1.40  [original Battle.cpp line(s) 793-801]
+--------------------------------------------
+==================================================
+3. SELECT THE DESTINATION
+==================================================
+
+Show the current formation again so the player
+can decide where the selected character should go.
+
+An occupied destination causes a swap.
+An empty destination receives the character.
+
+1.41  [original Battle.cpp line(s) 829-830]
+--------------------------------------------
+Moving to the same position changes nothing.
+Let the player choose again.
+
+1.42  [original Battle.cpp line(s) 842-852]
+--------------------------------------------
+==================================================
+4. RECORD WHO OCCUPIES THE DESTINATION
+==================================================
+
+Save this before moving anyone.
+
+If a character already occupies the destination,
+Formation::moveMember() will swap the two.
+
+We retain their name so the action message can
+explain the resulting movement.
+
+1.43  [original Battle.cpp line(s) 858-868]
+--------------------------------------------
+==================================================
+5. MOVE THE CHARACTER THROUGH FORMATION
+==================================================
+
+Do not edit positions directly here.
+
+Party::moveMember() delegates to Formation,
+which updates the formation slots and synchronizes
+the affected characters' current positions.
+
+This keeps your battle range checks working.
+
+1.44  [original Battle.cpp line(s) 884-892]
+--------------------------------------------
+==================================================
+6. SAVE THE LAST-ACTION MESSAGE
+==================================================
+
+printBattleState() displays lastActionMessage
+whenever the battle screen is redrawn.
+
+Describe the move differently depending on
+whether the destination was occupied.
+
+1.45  [original Battle.cpp line(s) 918-925]
+--------------------------------------------
+==================================================
+7. FINISH THE MOVEMENT ACTION
+==================================================
+
+Return true to indicate a successful move.
+
+playerTurn() will then end the current hero's
+turn and let the battle continue.
+
+1.46  [original Battle.cpp line(s) 933-935]
+--------------------------------------------
+--------------------------------------------------
+Party alive checks
+--------------------------------------------------
+
+1.47  [original Battle.cpp line(s) 967-969]
+--------------------------------------------
+--------------------------------------------------
+Enemy target selection
+--------------------------------------------------
+
+1.48  [original Battle.cpp line(s) 1057-1059]
+--------------------------------------------
+--------------------------------------------------
+Ally target selection
+--------------------------------------------------
+
+1.49  [original Battle.cpp line(s) 1111-1113]
+--------------------------------------------
+--------------------------------------------------
+Basic attack menu
+--------------------------------------------------
+
+1.50  [original Battle.cpp line(s) 1118-1135]
+--------------------------------------------
+==================================================
+1. RETRIEVE THE CHARACTER'S ATTACK RULES
+==================================================
+
+PositionRules contains four values:
+
+userMin   = minimum position the attacker can use
+userMax   = maximum position the attacker can use
+targetMin = minimum enemy position that can be hit
+targetMax = maximum enemy position that can be hit
+
+getAttackRules() retrieves the correct rules for
+the current character.
+
+Example: Highwayman
+{ 1, 3, 2, 4 }
+Can attack from positions 1-3 and target enemies
+in positions 2-4.
+
+1.51  [original Battle.cpp line(s) 1141-1142]
+--------------------------------------------
+No attack rules exist for this character.
+Do not execute the attack.
+
+1.52  [original Battle.cpp line(s) 1153-1164]
+--------------------------------------------
+==================================================
+2. CHECK THE ATTACKER'S FORMATION POSITION
+==================================================
+
+Retrieve the character's current position through
+playerParty, which delegates to Formation.
+
+This is important because Formation is responsible
+for managing the party's current arrangement.
+
+We check the attacker's position before allowing
+them to choose an enemy target.
+
+1.53  [original Battle.cpp line(s) 1181-1183]
+--------------------------------------------
+Return false because no attack occurred.
+This allows playerTurn() to let the player
+choose another action instead of losing a turn.
+
+1.54  [original Battle.cpp line(s) 1189-1201]
+--------------------------------------------
+==================================================
+3. SELECT A VALID ENEMY TARGET
+==================================================
+
+Only enemies within the basic attack's target
+range are offered to the player.
+
+chooseEnemyTarget() also handles:
+- Dead enemies
+- Invalid target positions
+- The player's Back option
+
+If the player backs out, no attack occurs.
+
+1.55  [original Battle.cpp line(s) 1211-1212]
+--------------------------------------------
+No target was selected, so do not consume
+the player's turn or replace the last action.
+
+1.56  [original Battle.cpp line(s) 1218-1229]
+--------------------------------------------
+==================================================
+4. RECORD THE TARGET'S HP BEFORE THE ATTACK
+==================================================
+
+Save the target's current HP before applying damage.
+
+Comparing HP before and after the attack allows
+us to determine how much HP the target actually lost.
+
+This is better than relying on the attack's random
+damage roll because the target might have less HP
+remaining than the damage dealt.
+
+1.57  [original Battle.cpp line(s) 1234-1245]
+--------------------------------------------
+==================================================
+5. EXECUTE THE BASIC ATTACK
+==================================================
+
+Call Character's base attack implementation directly.
+
+The Battle system has already validated the
+attacker's position and selected a valid target.
+
+Calling the base implementation directly prevents
+an old character-specific attack override from
+applying a second set of position restrictions.
+
+1.58  [original Battle.cpp line(s) 1250-1259]
+--------------------------------------------
+==================================================
+6. CALCULATE THE ACTUAL DAMAGE DEALT
+==================================================
+
+Example:
+HP before attack = 20
+HP after attack  = 13
+Actual damage    = 7
+
+This reports the amount of HP actually lost.
+
+1.59  [original Battle.cpp line(s) 1264-1276]
+--------------------------------------------
+==================================================
+7. SAVE THE ACTION MESSAGE
+==================================================
+
+lastActionMessage is stored in Battle.h as a
+std::string member variable.
+
+printBattleState() displays this message after
+the console clears and the battle screen redraws.
+
+We save the result here, after the attack has
+actually executed, so the message reflects what
+happened rather than what was intended.
+
+1.60  [original Battle.cpp line(s) 1287-1295]
+--------------------------------------------
+==================================================
+8. CHECK WHETHER THE TARGET WAS DEFEATED
+==================================================
+
+If the attack reduced the target's HP to zero,
+append a defeat message to the existing action.
+
+The message is displayed together with the
+damage result on the next battle-screen redraw.
+
+1.61  [original Battle.cpp line(s) 1306-1314]
+--------------------------------------------
+==================================================
+9. REPORT THAT THE ACTION SUCCEEDED
+==================================================
+
+Returning true tells playerTurn() that an attack
+was completed and the character's turn is over.
+
+This differs from returning false when the player
+cannot attack or backs out of target selection.
+
+1.62  [original Battle.cpp line(s) 1320-1322]
+--------------------------------------------
+--------------------------------------------------
+Skill menu
+--------------------------------------------------
+
+1.63  [original Battle.cpp line(s) 1327-1337]
+--------------------------------------------
+==================================================
+1. DISPLAY THE SKILL MENU
+==================================================
+
+Keep showing the skill menu until:
+- The player successfully uses a skill.
+- The player chooses Back.
+
+The battle screen is redrawn each time the menu
+opens. printBattleState() also displays the most
+recent action saved in lastActionMessage.
+
+1.64  [original Battle.cpp line(s) 1349-1349]
+--------------------------------------------
+Display the skills available to this character.
+
+1.65  [original Battle.cpp line(s) 1355-1363]
+--------------------------------------------
+==================================================
+2. GET THE PLAYER'S CHOICE
+==================================================
+
+Input::getInt() handles invalid integer input.
+
+Choosing 0 returns to the character's action menu.
+No skill is used and the previous action message
+remains unchanged.
+
+1.66  [original Battle.cpp line(s) 1375-1390]
+--------------------------------------------
+==================================================
+3. RETRIEVE THE SKILL'S POSITION RULES
+==================================================
+
+PositionRules contains:
+
+userMin   = minimum position the character can use
+userMax   = maximum position the character can use
+targetMin = minimum target position
+targetMax = maximum target position
+
+getSkillRules() determines these rules based on
+the character name and the selected skill number.
+
+If there are no rules for this skill, the choice
+is invalid and the player remains in this menu.
+
+1.67  [original Battle.cpp line(s) 1404-1413]
+--------------------------------------------
+==================================================
+4. VALIDATE THE USER'S FORMATION POSITION
+==================================================
+
+Retrieve the character's position from playerParty.
+Party delegates this request to Formation.
+
+This ensures skill restrictions use the current
+formation rather than relying on old range checks
+inside individual character classes.
+
+1.68  [original Battle.cpp line(s) 1431-1432]
+--------------------------------------------
+The skill was not used.
+Allow the player to select a different skill.
+
+1.69  [original Battle.cpp line(s) 1438-1446]
+--------------------------------------------
+==================================================
+5. DETERMINE THE REQUIRED TARGET TYPE
+==================================================
+
+Each character identifies whether a skill targets
+an enemy or an ally.
+
+Battle uses this information to open the
+appropriate target-selection menu.
+
+1.70  [original Battle.cpp line(s) 1454-1456]
+--------------------------------------------
+==================================================
+6. SELECT A VALID TARGET
+==================================================
+
+1.71  [original Battle.cpp line(s) 1460-1461]
+--------------------------------------------
+Only show enemies within the skill's
+permitted target-position range.
+
+1.72  [original Battle.cpp line(s) 1471-1471]
+--------------------------------------------
+Open the ally-selection menu.
+
+1.73  [original Battle.cpp line(s) 1475-1476]
+--------------------------------------------
+If the player backed out of target selection,
+do not execute the skill or change the action log.
+
+1.74  [original Battle.cpp line(s) 1484-1497]
+--------------------------------------------
+==================================================
+7. RECORD THE TARGET'S HP BEFORE THE SKILL
+==================================================
+
+Store the target's current HP so we can calculate
+what actually happened after the skill executes.
+
+For damaging skills, this measures actual HP lost.
+For healing skills, this measures actual HP gained.
+
+For example:
+Before: 12 HP
+After:   5 HP
+Damage:  7 HP
+
+1.75  [original Battle.cpp line(s) 1502-1512]
+--------------------------------------------
+==================================================
+8. DETERMINE THE SKILL NAME
+==================================================
+
+Save a readable skill name for the action message.
+
+These names correspond to the skills currently
+displayed by your four playable characters.
+
+The skill number is only interpreted after
+getSkillRules() confirms that it is valid.
+
+1.76  [original Battle.cpp line(s) 1562-1572]
+--------------------------------------------
+==================================================
+9. EXECUTE THE SKILL
+==================================================
+
+At this point:
+- The skill number has been validated.
+- The user's position has been validated.
+- A valid target has been selected.
+
+The character class now executes the actual
+damage, healing, or other ability effect.
+
+1.77  [original Battle.cpp line(s) 1577-1591]
+--------------------------------------------
+==================================================
+10. CALCULATE THE RESULT
+==================================================
+
+Compare HP before and after the skill.
+
+Enemy target:
+HP lost = damage dealt.
+
+Ally target:
+HP gained = healing received.
+
+Measuring actual HP changes means the action
+message won't claim a hero recovered 8 HP if
+that hero only needed 3 HP to reach full health.
+
+1.78  [original Battle.cpp line(s) 1596-1607]
+--------------------------------------------
+==================================================
+11. SAVE THE LAST-ACTION MESSAGE
+==================================================
+
+printBattleState() displays this string whenever
+the battle screen is redrawn.
+
+Saving the message here ensures it describes
+the skill that has just executed.
+
+This message replaces the previous action
+instead of allowing the console to fill up.
+
+1.79  [original Battle.cpp line(s) 1624-1625]
+--------------------------------------------
+Append a defeat message if the attack
+reduced the enemy's HP to zero.
+
+1.80  [original Battle.cpp line(s) 1651-1657]
+--------------------------------------------
+==================================================
+12. FINISH THE TURN
+==================================================
+
+The skill has successfully executed.
+Return to playerTurn(), which ends this character's
+turn and allows the battle loop to continue.
+
+1.81  [original Battle.cpp line(s) 1666-1671]
+--------------------------------------------
+==================================================
+1. CHECK THE STRESS THRESHOLD
+==================================================
+
+A hero must have MORE than 100 stress to be affected.
+At 100 or below, their turn proceeds normally.
+
+1.82  [original Battle.cpp line(s) 1679-1686]
+--------------------------------------------
+==================================================
+2. ROLL FOR A STRESS REACTION
+==================================================
+
+There is a 30% chance of a reaction each turn
+while the hero's stress remains above 100.
+
+A failed roll means the hero can act normally.
+
+1.83  [original Battle.cpp line(s) 1702-1711]
+--------------------------------------------
+==================================================
+3. CHOOSE THE REACTION
+==================================================
+
+Each of the three reactions currently has an equal
+chance of occurring once a reaction is triggered.
+
+1 = Attack a random enemy
+2 = Refuse the turn
+3 = Attack a random ally
+
+1.84  [original Battle.cpp line(s) 1721-1730]
+--------------------------------------------
+==================================================
+REACTION 1: ATTACK A RANDOM ENEMY
+==================================================
+
+The stressed hero loses control and attacks a
+randomly selected living enemy.
+
+Because this is an involuntary action, it uses
+Character::attack() directly rather than the
+hero's normal skill-selection and range checks.
+
+1.85  [original Battle.cpp line(s) 1737-1737]
+--------------------------------------------
+Collect all living enemies.
+
+1.86  [original Battle.cpp line(s) 1749-1749]
+--------------------------------------------
+Safety check in case there are no living enemies.
+
+1.87  [original Battle.cpp line(s) 1755-1755]
+--------------------------------------------
+Select a random enemy.
+
+1.88  [original Battle.cpp line(s) 1764-1764]
+--------------------------------------------
+Record the target's HP before attacking.
+
+1.89  [original Battle.cpp line(s) 1767-1767]
+--------------------------------------------
+Execute the involuntary attack.
+
+1.90  [original Battle.cpp line(s) 1770-1770]
+--------------------------------------------
+Calculate the actual HP lost.
+
+1.91  [original Battle.cpp line(s) 1773-1773]
+--------------------------------------------
+Store the result for the battle screen.
+
+1.92  [original Battle.cpp line(s) 1785-1785]
+--------------------------------------------
+Record the enemy's defeat if applicable.
+
+1.93  [original Battle.cpp line(s) 1798-1805]
+--------------------------------------------
+==================================================
+REACTION 2: REFUSE TO ACT
+==================================================
+
+The hero is overwhelmed and refuses to take
+their normal action this turn.
+
+No attack or skill is executed.
+
+1.94  [original Battle.cpp line(s) 1820-1829]
+--------------------------------------------
+==================================================
+REACTION 3: ATTACK A RANDOM ALLY
+==================================================
+
+The stressed hero loses control and attacks
+another living member of the player party.
+
+The acting hero cannot target themselves.
+Normal position restrictions are ignored for
+this involuntary attack.
+
+1.95  [original Battle.cpp line(s) 1847-1848]
+--------------------------------------------
+If there is nobody else alive, the hero cannot
+attack an ally, so the reaction becomes a refusal.
+
+1.96  [original Battle.cpp line(s) 1861-1861]
+--------------------------------------------
+Choose a random living ally.
+
+1.97  [original Battle.cpp line(s) 1870-1870]
+--------------------------------------------
+Record the ally's HP before the attack.
+
+1.98  [original Battle.cpp line(s) 1873-1873]
+--------------------------------------------
+Execute the involuntary friendly-fire attack.
+
+1.99  [original Battle.cpp line(s) 1878-1878]
+--------------------------------------------
+Being attacked by an ally also causes stress.
+
+1.100  [original Battle.cpp line(s) 1882-1882]
+---------------------------------------------
+Save the result for the battle display.
+
+1.101  [original Battle.cpp line(s) 1911-1913]
+---------------------------------------------
+--------------------------------------------------
+Player turn
+--------------------------------------------------
+
+1.102  [original Battle.cpp line(s) 1920-1921]
+---------------------------------------------
+Roll for stress once at the start of the turn.
+Opening menus or redrawing the screen won't reroll it.
+
+1.103  [original Battle.cpp line(s) 1932-1933]
+---------------------------------------------
+Check whether stress forces an involuntary action.
+This happens once per turn, not on each menu redraw.
+
+1.104  [original Battle.cpp line(s) 1941-1941]
+---------------------------------------------
+The reaction consumed the hero's turn.
+
+1.105  [original Battle.cpp line(s) 1956-1956]
+---------------------------------------------
+Display the stress change for this turn.
+
+1.106  [original Battle.cpp line(s) 1972-1972]
+---------------------------------------------
+Available actions.
+
+1.107  [original Battle.cpp line(s) 1985-1987]
+---------------------------------------------
+------------------------------------------
+OPTION 1: ATTACK
+------------------------------------------
+
+1.108  [original Battle.cpp line(s) 1992-1992]
+---------------------------------------------
+Successful attack consumes the turn.
+
+1.109  [original Battle.cpp line(s) 1995-1995]
+---------------------------------------------
+Back or invalid action: choose again.
+
+1.110  [original Battle.cpp line(s) 1998-2000]
+---------------------------------------------
+------------------------------------------
+OPTION 2: SKILLS
+------------------------------------------
+
+1.111  [original Battle.cpp line(s) 2007-2009]
+---------------------------------------------
+------------------------------------------
+OPTION 3: MOVE PARTY MEMBER
+------------------------------------------
+
+1.112  [original Battle.cpp line(s) 2014-2014]
+---------------------------------------------
+Successful movement consumes the turn.
+
+1.113  [original Battle.cpp line(s) 2017-2017]
+---------------------------------------------
+Cancelled movement: choose again.
+
+1.114  [original Battle.cpp line(s) 2020-2022]
+---------------------------------------------
+------------------------------------------
+OPTION 4: PASS
+------------------------------------------
+
+1.115  [original Battle.cpp line(s) 2034-2036]
+---------------------------------------------
+--------------------------------------------------
+Enemy turn
+--------------------------------------------------
+
+1.116  [original Battle.cpp line(s) 2042-2050]
+---------------------------------------------
+==================================================
+1. PREPARE THE BATTLE SCREEN
+==================================================
+
+Clear the previous console output and redraw the
+current battle state before the enemy takes action.
+
+This lets the player see the current HP values and
+formation positions before the enemy attacks.
+
+1.117  [original Battle.cpp line(s) 2056-2063]
+---------------------------------------------
+==================================================
+2. CHECK WHETHER THE ENEMY CAN ACT
+==================================================
+
+Defeated enemies must not take turns.
+
+This safety check prevents an enemy that has already
+been defeated from attacking.
+
+1.118  [original Battle.cpp line(s) 2071-2076]
+---------------------------------------------
+==================================================
+3. DISPLAY THE ENEMY'S TURN
+==================================================
+
+Print a small heading so the player knows which
+enemy is about to perform its action.
+
+1.119  [original Battle.cpp line(s) 2084-2095]
+---------------------------------------------
+==================================================
+4. COLLECT LIVING PLAYER CHARACTERS
+==================================================
+
+Build an array containing only living members of
+the player's party.
+
+The enemy will randomly choose one of these heroes.
+
+We store Character pointers because the party
+already owns and manages the actual characters.
+We do not create copies of the characters here.
+
+1.120  [original Battle.cpp line(s) 2105-2105]
+---------------------------------------------
+Ignore empty slots and defeated characters.
+
+1.121  [original Battle.cpp line(s) 2114-2122]
+---------------------------------------------
+==================================================
+5. CHECK WHETHER ANY HEROES REMAIN
+==================================================
+
+If no living targets were found, the enemy has
+nobody to attack.
+
+Return immediately to avoid attempting to select
+a target from an empty array.
+
+1.122  [original Battle.cpp line(s) 2130-2140]
+---------------------------------------------
+==================================================
+6. INITIALIZE THE RANDOM GENERATOR
+==================================================
+
+The random generator is reused for:
+- Selecting an enemy's target.
+- Determining whether repositioning happens.
+- Choosing the destination position.
+
+The static declarations ensure the generator is
+initialized once and reused on later enemy turns.
+
+1.123  [original Battle.cpp line(s) 2146-2155]
+---------------------------------------------
+==================================================
+7. SELECT A RANDOM PLAYER TARGET
+==================================================
+
+Choose a random index from the array of living
+heroes.
+
+Because the array contains only living characters,
+the enemy cannot deliberately select an empty slot
+or a defeated hero.
+
+1.124  [original Battle.cpp line(s) 2166-2173]
+---------------------------------------------
+==================================================
+8. RECORD THE TARGET'S HP BEFORE THE ATTACK
+==================================================
+
+Save the target's current HP before damage occurs.
+
+Comparing HP before and after the attack lets us
+calculate the amount of HP actually lost.
+
+1.125  [original Battle.cpp line(s) 2178-2186]
+---------------------------------------------
+==================================================
+9. EXECUTE THE ENEMY ATTACK
+==================================================
+
+The enemy performs its normal attack against the
+selected player character.
+
+Character::attack() currently handles the damage
+calculation and applies that damage to the target.
+
+1.126  [original Battle.cpp line(s) 2191-2202]
+---------------------------------------------
+==================================================
+10. CALCULATE THE ACTUAL DAMAGE
+==================================================
+
+Example:
+HP before attack = 26
+HP after attack  = 21
+Actual HP lost   = 5
+
+This reports the actual HP reduction, rather than
+assuming the target always loses the full damage
+rolled by the attack.
+
+1.127  [original Battle.cpp line(s) 2207-2218]
+---------------------------------------------
+==================================================
+11. APPLY STRESS TO THE PLAYER TARGET
+==================================================
+
+Only the player party gains stress when attacked.
+
+The target receives between 1 and 4 stress.
+randomStress() is your existing random stress helper.
+
+Your Character::addStress() method handles the
+stress limit, so this function does not need to
+clamp the value itself.
+
+1.128  [original Battle.cpp line(s) 2225-2234]
+---------------------------------------------
+==================================================
+12. CREATE THE INITIAL ACTION MESSAGE
+==================================================
+
+lastActionMessage is displayed by
+printBattleState() after the screen redraws.
+
+Store the attack result and stress increase now.
+If the target is subsequently repositioned, we
+append that information to this same message.
+
+1.129  [original Battle.cpp line(s) 2249-2257]
+---------------------------------------------
+==================================================
+13. CHECK WHETHER THE TARGET WAS DEFEATED
+==================================================
+
+A defeated hero cannot be repositioned by this
+effect.
+
+Record their defeat in the action message so the
+result remains visible after the next redraw.
+
+1.130  [original Battle.cpp line(s) 2268-2278]
+---------------------------------------------
+==================================================
+14. ROLL FOR RANDOM REPOSITIONING
+==================================================
+
+Only a surviving hero can be repositioned.
+
+A roll from 1 to 100 gives a 25% chance when the
+result is 25 or lower.
+
+The repositioning happens after the damage and
+stress are applied.
+
+1.131  [original Battle.cpp line(s) 2289-2297]
+---------------------------------------------
+==========================================
+15. GET THE TARGET'S CURRENT POSITION
+==========================================
+
+Retrieve the current position through Party.
+Party delegates position lookup to Formation.
+
+We do not directly edit Character's position
+field because Formation must stay synchronized.
+
+1.132  [original Battle.cpp line(s) 2303-2311]
+---------------------------------------------
+==========================================
+16. SELECT A DIFFERENT DESTINATION
+==========================================
+
+Randomly select a destination from positions
+1 through 4.
+
+The loop rejects the current position so the
+character is guaranteed to change positions.
+
+1.133  [original Battle.cpp line(s) 2326-2334]
+---------------------------------------------
+==========================================
+17. CHECK THE DESTINATION OCCUPANT
+==========================================
+
+Formation::moveMember() swaps characters when
+the destination is occupied.
+
+Save the destination occupant before moving
+anyone so we can describe the result later.
+
+1.134  [original Battle.cpp line(s) 2340-2349]
+---------------------------------------------
+==========================================
+18. MOVE THE CHARACTER THROUGH FORMATION
+==========================================
+
+Request the movement through Party instead
+of changing the character's position directly.
+
+This updates the formation slots and keeps
+position-dependent attack and skill rules
+working with the new arrangement.
+
+1.135  [original Battle.cpp line(s) 2357-2365]
+---------------------------------------------
+==========================================
+19. APPEND THE REPOSITIONING MESSAGE
+==========================================
+
+If the move succeeds, append the movement
+result to the existing attack message.
+
+This way the LAST ACTION display reports
+both the damage and the repositioning event.
+
+1.136  [original Battle.cpp line(s) 2371-2372]
+---------------------------------------------
+The destination was occupied, so
+Formation swapped the two characters.
+
+1.137  [original Battle.cpp line(s) 2387-2388]
+---------------------------------------------
+The destination was empty, so the
+target simply moved into that slot.
+
+1.138  [original Battle.cpp line(s) 2404-2413]
+---------------------------------------------
+==================================================
+20. ENEMY TURN COMPLETE
+==================================================
+
+The attack, stress increase, and possible
+repositioning are complete.
+
+Battle::start() will continue processing the round.
+The next screen redraw will display lastActionMessage
+and the updated formation positions.
+
+1.139  [original Battle.cpp line(s) 2417-2419]
+---------------------------------------------
+--------------------------------------------------
+Start battle
+--------------------------------------------------
+
+1.140  [original Battle.cpp line(s) 2426-2431]
+---------------------------------------------
+==================================================
+1. DISPLAY THE BATTLE INTRODUCTION
+==================================================
+
+Clear the console and display the opening battle
+screen before the first round begins.
+
+1.141  [original Battle.cpp line(s) 2442-2457]
+---------------------------------------------
+==================================================
+2. MAIN BATTLE LOOP
+==================================================
+
+Continue fighting while both parties have at
+least one living character.
+
+Each round is divided into four phases:
+
+Phase 1: Player positions 1-2
+Phase 2: Enemy positions 1-2
+Phase 3: Player positions 3-4
+Phase 4: Enemy positions 3-4
+
+At the end of a round, the loop starts again
+if both parties still have living characters.
+
+1.142  [original Battle.cpp line(s) 2461-2478]
+---------------------------------------------
+==================================================
+3. RECORD THE TURN ORDER FOR THIS ROUND
+==================================================
+
+Store character pointers in arrays corresponding
+to their formation positions.
+
+Index 0 represents position 1.
+Index 1 represents position 2.
+Index 2 represents position 3.
+Index 3 represents position 4.
+
+We record the order before anyone acts so moving
+characters during combat doesn't cause another
+character to take an extra turn.
+
+Only living characters are scheduled at the
+beginning of the round.
+
+1.143  [original Battle.cpp line(s) 2508-2519]
+---------------------------------------------
+==================================================
+4. PHASE ONE: PLAYER POSITIONS 1-2
+==================================================
+
+The first two player formation slots act before
+the first two enemy formation slots.
+
+If either player slot is empty or defeated,
+that slot's turn is simply skipped.
+
+If all enemies are defeated during this phase,
+combat ends without starting another phase.
+
+1.144  [original Battle.cpp line(s) 2536-2538]
+---------------------------------------------
+Stop immediately if the first player group
+defeated the enemy party or the player party
+no longer has any living members.
+
+1.145  [original Battle.cpp line(s) 2545-2553]
+---------------------------------------------
+==================================================
+5. PHASE TWO: ENEMY POSITIONS 1-2
+==================================================
+
+The first two enemy formation slots now act.
+
+The enemy targets are selected by the existing
+enemyTurn() function, which chooses a random
+living player character.
+
+1.146  [original Battle.cpp line(s) 2570-2571]
+---------------------------------------------
+Check for defeat before allowing the remaining
+player characters to take their turns.
+
+1.147  [original Battle.cpp line(s) 2578-2589]
+---------------------------------------------
+==================================================
+6. PHASE THREE: PLAYER POSITIONS 3-4
+==================================================
+
+The two rear player formation slots now act.
+
+Their turns remain scheduled according to the
+formation at the beginning of the round.
+
+Moving a character changes their current position
+and skill ranges, but does not change the order
+of turns already scheduled for this round.
+
+1.148  [original Battle.cpp line(s) 2606-2607]
+---------------------------------------------
+If the player group defeats the remaining
+enemies, do not start the final enemy phase.
+
+1.149  [original Battle.cpp line(s) 2614-2622]
+---------------------------------------------
+==================================================
+7. PHASE FOUR: ENEMY POSITIONS 3-4
+==================================================
+
+The remaining enemy formation slots act.
+
+Empty slots and defeated enemies are skipped.
+If there is only one or two enemies, they will
+already have acted in the earlier enemy phase.
+
+1.150  [original Battle.cpp line(s) 2640-2648]
+---------------------------------------------
+==================================================
+8. REFRESH THE BATTLE SCREEN
+==================================================
+
+Update the displayed HP, stress, positions,
+narrator message, and last action.
+
+The while loop then checks whether another
+round should begin.
+
+1.151  [original Battle.cpp line(s) 2655-2663]
+---------------------------------------------
+==================================================
+9. DISPLAY THE FINAL BATTLE RESULT
+==================================================
+
+The battle ends when either party has no living
+characters remaining.
+
+Display the final battle state and then announce
+victory or defeat.
+
+1.152  [original Battle.cpp line(s) 2686-2688]
+---------------------------------------------
+--------------------------------------------------
+Party accessors
+--------------------------------------------------
