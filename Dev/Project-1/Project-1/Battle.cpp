@@ -2456,17 +2456,16 @@ void Battle::enemyTurn(Character& enemy)
 // --------------------------------------------------
 
 
+
+
 void Battle::start()
 {
     // ==================================================
-    // 1. INITIALIZE THE BATTLE SCREEN
+    // 1. DISPLAY THE BATTLE INTRODUCTION
     // ==================================================
     //
-    // Clear previous room or menu text, then display
-    // the battle introduction and both formations.
-    //
-    // The battle's enemy party has already been generated
-    // by the Battle constructor.
+    // Clear the console and display the opening battle
+    // screen before the first round begins.
 
     clearScreen();
 
@@ -2481,73 +2480,83 @@ void Battle::start()
     // 2. MAIN BATTLE LOOP
     // ==================================================
     //
-    // Continue fighting while both parties have at least
-    // one living character.
+    // Continue fighting while both parties have at
+    // least one living character.
     //
-    // playerPartyAlive() and enemyPartyAlive() check
-    // the current state of each party.
+    // Each round is divided into four phases:
+    //
+    // Phase 1: Player positions 1-2
+    // Phase 2: Enemy positions 1-2
+    // Phase 3: Player positions 3-4
+    // Phase 4: Enemy positions 3-4
+    //
+    // At the end of a round, the loop starts again
+    // if both parties still have living characters.
 
     while (playerPartyAlive() && enemyPartyAlive())
     {
-        // ==============================================
-        // 3. RECORD THE PLAYER TURN ORDER
-        // ==============================================
+        // ==================================================
+        // 3. RECORD THE TURN ORDER FOR THIS ROUND
+        // ==================================================
         //
-        // Save the living player characters in their
-        // current formation order at the beginning of
-        // the round.
+        // Store character pointers in arrays corresponding
+        // to their formation positions.
         //
-        // IMPORTANT:
-        // We store Character pointers, not positions.
+        // Index 0 represents position 1.
+        // Index 1 represents position 2.
+        // Index 2 represents position 3.
+        // Index 3 represents position 4.
         //
-        // If a character moves during combat, their
-        // pointer still refers to that same character.
+        // We record the order before anyone acts so moving
+        // characters during combat doesn't cause another
+        // character to take an extra turn.
         //
-        // Example:
-        // Initial order: Crusader, Highwayman, Plague Doctor, Vestal
-        //
-        // If Crusader swaps Highwayman and Plague Doctor,
-        // the scheduled turn order remains unchanged.
-        //
-        // Their new positions affect attack and skill
-        // ranges immediately, but do not change who acts
-        // next during this round.
+        // Only living characters are scheduled at the
+        // beginning of the round.
 
-        Character* playerTurnOrder[4] = { nullptr };
-        int playerTurnCount = 0;
+        Character* playerTurnOrder[4] = {
+            nullptr, nullptr, nullptr, nullptr
+        };
+
+        Character* enemyTurnOrder[4] = {
+            nullptr, nullptr, nullptr, nullptr
+        };
 
         for (int position = 1; position <= 4; position++)
         {
-            Character* character =
+            Character* player =
                 playerParty.getMember(position);
 
-            // Only living characters are scheduled.
-            if (character != nullptr && character->isAlive())
+            Character* enemy =
+                enemyParty.getMember(position);
+
+            if (player != nullptr && player->isAlive())
             {
-                playerTurnOrder[playerTurnCount] = character;
-                playerTurnCount++;
+                playerTurnOrder[position - 1] = player;
+            }
+
+            if (enemy != nullptr && enemy->isAlive())
+            {
+                enemyTurnOrder[position - 1] = enemy;
             }
         }
 
 
-        // ==============================================
-        // 4. PROCESS PLAYER TURNS
-        // ==============================================
+        // ==================================================
+        // 4. PHASE ONE: PLAYER POSITIONS 1-2
+        // ==================================================
         //
-        // Process the saved pointers rather than looking
-        // up a new character at each formation position.
+        // The first two player formation slots act before
+        // the first two enemy formation slots.
         //
-        // This prevents movement from changing the turn
-        // order or causing a character to act twice.
+        // If either player slot is empty or defeated,
+        // that slot's turn is simply skipped.
         //
-        // We still check whether the character is alive
-        // because they might be defeated before their
-        // scheduled turn.
+        // If all enemies are defeated during this phase,
+        // combat ends without starting another phase.
 
-        for (int i = 0; i < playerTurnCount; i++)
+        for (int i = 0; i < 2; i++)
         {
-            // End the player phase immediately if all
-            // enemies have been defeated.
             if (!enemyPartyAlive())
             {
                 break;
@@ -2555,53 +2564,109 @@ void Battle::start()
 
             Character* character = playerTurnOrder[i];
 
-            // A defeated character cannot take a turn.
             if (character != nullptr && character->isAlive())
             {
                 playerTurn(*character);
             }
         }
 
-
-        // ==============================================
-        // 5. CHECK FOR PLAYER VICTORY
-        // ==============================================
-        //
-        // If the player party defeated every enemy during
-        // its phase, there is no reason to start the
-        // enemy phase.
-
-        if (!enemyPartyAlive())
+        // Stop immediately if the first player group
+        // defeated the enemy party or the player party
+        // no longer has any living members.
+        if (!playerPartyAlive() || !enemyPartyAlive())
         {
             break;
         }
 
 
-        // ==============================================
-        // 6. PROCESS ENEMY TURNS
-        // ==============================================
+        // ==================================================
+        // 5. PHASE TWO: ENEMY POSITIONS 1-2
+        // ==================================================
         //
-        // Enemies continue to act in formation order.
+        // The first two enemy formation slots now act.
         //
-        // Their turns are looked up by position, matching
-        // your existing enemy-turn system.
-        //
-        // Movement currently affects the player formation,
-        // so we can leave the enemy turn logic unchanged.
+        // The enemy targets are selected by the existing
+        // enemyTurn() function, which chooses a random
+        // living player character.
 
-        for (int position = 1; position <= 4; position++)
+        for (int i = 0; i < 2; i++)
         {
-            // Stop the enemy phase if all heroes have
-            // been defeated.
             if (!playerPartyAlive())
             {
                 break;
             }
 
-            Character* enemy =
-                enemyParty.getMember(position);
+            Character* enemy = enemyTurnOrder[i];
 
-            // Only living enemies can act.
+            if (enemy != nullptr && enemy->isAlive())
+            {
+                enemyTurn(*enemy);
+            }
+        }
+
+        // Check for defeat before allowing the remaining
+        // player characters to take their turns.
+        if (!playerPartyAlive() || !enemyPartyAlive())
+        {
+            break;
+        }
+
+
+        // ==================================================
+        // 6. PHASE THREE: PLAYER POSITIONS 3-4
+        // ==================================================
+        //
+        // The two rear player formation slots now act.
+        //
+        // Their turns remain scheduled according to the
+        // formation at the beginning of the round.
+        //
+        // Moving a character changes their current position
+        // and skill ranges, but does not change the order
+        // of turns already scheduled for this round.
+
+        for (int i = 2; i < 4; i++)
+        {
+            if (!enemyPartyAlive())
+            {
+                break;
+            }
+
+            Character* character = playerTurnOrder[i];
+
+            if (character != nullptr && character->isAlive())
+            {
+                playerTurn(*character);
+            }
+        }
+
+        // If the player group defeats the remaining
+        // enemies, do not start the final enemy phase.
+        if (!playerPartyAlive() || !enemyPartyAlive())
+        {
+            break;
+        }
+
+
+        // ==================================================
+        // 7. PHASE FOUR: ENEMY POSITIONS 3-4
+        // ==================================================
+        //
+        // The remaining enemy formation slots act.
+        //
+        // Empty slots and defeated enemies are skipped.
+        // If there is only one or two enemies, they will
+        // already have acted in the earlier enemy phase.
+
+        for (int i = 2; i < 4; i++)
+        {
+            if (!playerPartyAlive())
+            {
+                break;
+            }
+
+            Character* enemy = enemyTurnOrder[i];
+
             if (enemy != nullptr && enemy->isAlive())
             {
                 enemyTurn(*enemy);
@@ -2609,15 +2674,15 @@ void Battle::start()
         }
 
 
-        // ==============================================
-        // 7. REDRAW THE BATTLE STATE
-        // ==============================================
+        // ==================================================
+        // 8. REFRESH THE BATTLE SCREEN
+        // ==================================================
         //
-        // After both sides have acted, display the
-        // updated formations, HP, stress, and positions.
+        // Update the displayed HP, stress, positions,
+        // narrator message, and last action.
         //
-        // printBattleState() also displays the latest
-        // action stored in lastActionMessage.
+        // The while loop then checks whether another
+        // round should begin.
 
         clearScreen();
         printBattleState();
@@ -2625,17 +2690,14 @@ void Battle::start()
 
 
     // ==================================================
-    // 8. DISPLAY THE FINAL BATTLE RESULT
+    // 9. DISPLAY THE FINAL BATTLE RESULT
     // ==================================================
     //
-    // The battle loop has ended because one party has
-    // no living members remaining.
+    // The battle ends when either party has no living
+    // characters remaining.
     //
-    // Clear the screen and display the final battle
-    // state before announcing victory or defeat.
-    //
-    // This allows the player to see the final HP values
-    // and the action that ended the battle.
+    // Display the final battle state and then announce
+    // victory or defeat.
 
     clearScreen();
     printBattleState();
@@ -2654,6 +2716,8 @@ void Battle::start()
 
     std::cout << "====================================\n";
 }
+
+
 
 
 // --------------------------------------------------
