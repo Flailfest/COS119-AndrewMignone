@@ -13,5 +13,5 @@ public:
     void printSkills() const override;
     void useSkill(int skillNumber, Character& target) override;
     TargetType getSkillTargetType(int skillNumber) const override;
-    void attack(Character& target) override;
+   
 };

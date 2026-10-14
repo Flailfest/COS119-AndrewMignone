@@ -143,6 +143,7 @@
     <ClCompile Include="Character.cpp" />
     <ClCompile Include="Crusader.cpp" />
     <ClCompile Include="Enemy.cpp" />
+    <ClCompile Include="Formation.cpp" />
     <ClCompile Include="Highwayman.cpp" />
     <ClCompile Include="Input.cpp" />
     <ClCompile Include="Inventory.cpp" />
@@ -161,6 +162,7 @@
     <ClInclude Include="CombatTest.h" />
     <ClInclude Include="Crusader.h" />
     <ClInclude Include="Enemy.h" />
+    <ClInclude Include="Formation.h" />
     <ClInclude Include="Highwayman.h" />
     <ClInclude Include="Input.h" />
     <ClInclude Include="Inventory.h" />

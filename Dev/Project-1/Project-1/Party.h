@@ -1,20 +1,21 @@
 #pragma once
 
-#include "Character.h"
+#include "Formation.h"
 
 class Party
 {
 private:
-    Character* members[4];
+    Formation formation;
 
 public:
     Party();
 
     bool addMember(Character& character, int position);
-
     Character* getMember(int position) const;
 
-    void printFormation() const;
+    bool moveMember(int fromPosition, int toPosition);
+    int getPosition(const Character& character) const;
 
+    void printFormation() const;
     bool isValid() const;
 };
