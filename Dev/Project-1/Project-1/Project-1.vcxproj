@@ -185,9 +185,6 @@
     <ClInclude Include="RoomTest.h" />
     <ClInclude Include="Vestal.h" />
   </ItemGroup>
-  <ItemGroup>
-    <Text Include="Battle_comments_and_documentation.txt" />
-  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

@@ -31,9 +31,6 @@
     <Filter Include="Source Files\Character Items.cpp\character type .cpp%27s">
       <UniqueIdentifier>{f91262a0-1b95-4c03-a31a-841ecd03f831}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Documentation%27">
-      <UniqueIdentifier>{7d42e5b1-7aca-4a10-b403-fdd6b54a9496}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source Files\BattleUtilities">
       <UniqueIdentifier>{4333c014-edcf-49d2-9b6f-8ecfaecb1a40}</UniqueIdentifier>
     </Filter>
@@ -173,10 +170,5 @@
     <ClInclude Include="BattleUI.h">
       <Filter>Header Files\BattleUtilities.h</Filter>
     </ClInclude>
-  </ItemGroup>
-  <ItemGroup>
-    <Text Include="Battle_comments_and_documentation.txt">
-      <Filter>Documentation%27</Filter>
-    </Text>
   </ItemGroup>
 </Project>
