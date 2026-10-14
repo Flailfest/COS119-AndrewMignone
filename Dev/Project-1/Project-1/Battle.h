@@ -3,6 +3,8 @@
 #include "Party.h"
 #include "Enemy.h"
 
+#include <string>
+
 class Battle
 {
 private:
@@ -15,6 +17,13 @@ private:
 
     void generateEnemyParty();
     Enemy* createRandomEnemy();
+
+    // Opens the formation movement menu.
+// Returns true if a move succeeds, false if cancelled.
+    bool movePartyMember();
+
+    // Stores the most recent combat action for the next screen redraw.
+    std::string lastActionMessage;
 
     void printBattleState() const;
     void printCharacterStatus(const Character& character) const;

@@ -306,18 +306,77 @@ void Battle::printCharacterStatus(
         << "\n";
 }
 
+
 void Battle::printBattleState() const
 {
+    // ==================================================
+    // COLOR SETTINGS
+    // ==================================================
+    //
+    // These ANSI escape codes control the text colors
+    // displayed in the console.
+    //
+    // GREEN   = Player party
+    // CRIMSON = Enemy party
+    // RESET   = Restores the console's default color
+    //
+    // Keeping these in local constants makes the
+    // display code easier to read and maintain.
+
     const std::string GREEN = "\033[32m";
     const std::string CRIMSON = "\033[38;5;88m";
     const std::string RESET = "\033[0m";
 
+
+    // ==================================================
+    // COLUMN CONFIGURATION
+    // ==================================================
+    //
+    // COLUMN_WIDTH determines how far apart the two
+    // party columns appear on the screen.
+    //
+    // printColumnGap() uses the visible text length to
+    // calculate the spacing between the columns.
+    //
+    // This keeps the enemy party aligned even when
+    // character names have different lengths.
+
     const int columnWidth = 45;
 
+
+    // ==================================================
+    // BATTLE HEADER
+    // ==================================================
+    //
+    // Print the top border and the title.
+    //
+    // The border gives the battle screen a clear
+    // beginning and separates it from other messages.
+
     std::cout << "\n";
-    std::cout << "================================================================================\n";
-    std::cout << "                                  BATTLE\n";
-    std::cout << "================================================================================\n\n";
+
+    std::cout
+        << "================================================================================\n";
+
+    std::cout
+        << "                                  BATTLE\n";
+
+    std::cout
+        << "================================================================================\n\n";
+
+
+    // ==================================================
+    // PARTY HEADERS
+    // ==================================================
+    //
+    // Print PLAYER PARTY on the left and ENEMY PARTY
+    // on the right.
+    //
+    // std::left and std::setw() align the player header
+    // with the player column.
+    //
+    // ANSI color codes are applied around the displayed
+    // text so the two sides are easy to distinguish.
 
     std::cout
         << GREEN
@@ -326,17 +385,90 @@ void Battle::printBattleState() const
         << "PLAYER PARTY"
         << RESET;
 
-    std::cout << CRIMSON << "ENEMY PARTY" << RESET;
+    std::cout
+        << CRIMSON
+        << "ENEMY PARTY"
+        << RESET;
+
     std::cout << "\n";
 
-    std::cout << "--------------------------------------------------------------------------------\n";
+    std::cout
+        << "--------------------------------------------------------------------------------\n";
+
+
+    // ==================================================
+    // LAST ACTION DISPLAY
+    // ==================================================
+    //
+    // lastActionMessage is a member variable in Battle.
+    //
+    // Other battle functions save messages here after
+    // attacks, skills, and enemy actions.
+    //
+    // Because printBattleState() is called again after
+    // the console clears, displaying this variable lets
+    // the player see what happened during the last action.
+    //
+    // If the string is empty, no action message is shown.
+    //
+    // IMPORTANT:
+    // This section only DISPLAYs the message.
+    // attackMenu(), skillMenu(), and enemyTurn() are
+    // responsible for creating and saving the message.
+
+    if (!lastActionMessage.empty())
+    {
+        std::cout << "\n";
+
+        std::cout << "LAST ACTION\n";
+
+        std::cout << lastActionMessage << "\n";
+
+        std::cout << "\n";
+
+        // Add a divider below the action message so the
+        // message is visually separated from the parties.
+        std::cout
+            << "--------------------------------------------------------------------------------\n";
+    }
+
+
+    // ==================================================
+    // CHARACTER FORMATION DISPLAY
+    // ==================================================
+    //
+    // Each party has four possible formation positions.
+    //
+    // We iterate from position 1 through position 4.
+    //
+    // getMember(i) retrieves the character occupying
+    // that slot. If a slot is empty, it returns nullptr.
+    //
+    // Empty enemy slots are intentionally not printed.
+    // This means a battle with two enemies displays only
+    // those two enemies rather than printing "Empty".
 
     for (int i = 1; i <= 4; i++)
     {
+        // Retrieve the current player and enemy from
+        // their respective formation positions.
         Character* player = playerParty.getMember(i);
         Character* enemy = enemyParty.getMember(i);
 
-        // Names
+
+        // ==================================================
+        // CHARACTER NAMES
+        // ==================================================
+        //
+        // Start with empty strings.
+        //
+        // We only populate a string if a character
+        // actually occupies that formation position.
+        //
+        // The position number is included before each
+        // name to make movement and targeting easier
+        // to understand.
+
         std::string playerName;
         std::string enemyName;
 
@@ -352,27 +484,75 @@ void Battle::printBattleState() const
                 std::to_string(i) + ". " + enemy->getName();
         }
 
+
+        // ==================================================
+        // PRINT PLAYER NAME
+        // ==================================================
+        //
+        // Player names are displayed in green.
+        //
+        // We do not print anything here if the player
+        // position is empty.
+
         if (player != nullptr)
         {
-            std::cout << GREEN
-                << std::left
+            std::cout
+                << GREEN
                 << playerName
                 << RESET;
         }
 
+
+        // ==================================================
+        // ALIGN THE ENEMY COLUMN
+        // ==================================================
+        //
+        // printColumnGap() calculates the remaining
+        // spacing needed to position the enemy column.
+        //
+        // It uses the player name's length so shorter
+        // names receive more spaces than longer names.
+        //
+        // If the player slot is empty, the empty string
+        // is passed and the spacing remains consistent.
+
         printColumnGap(playerName);
 
-        // Only display occupied enemy positions.
+
+        // ==================================================
+        // PRINT ENEMY NAME
+        // ==================================================
+        //
+        // Only occupied enemy positions are displayed.
+        //
+        // If enemy is nullptr, neither the name nor
+        // an "Empty" placeholder is printed.
+
         if (enemy != nullptr)
         {
-            std::cout << CRIMSON
+            std::cout
+                << CRIMSON
                 << enemyName
                 << RESET;
         }
 
         std::cout << "\n";
 
-        // Player HP / stress
+
+        // ==================================================
+        // PLAYER HP AND STRESS
+        // ==================================================
+        //
+        // Display the player's current HP, maximum HP,
+        // and accumulated stress.
+        //
+        // Stress is shown out of 200, matching the
+        // limits used by your existing Character system.
+        //
+        // These values are read directly from Character,
+        // so changes from combat or room events are
+        // reflected whenever this screen is redrawn.
+
         std::string playerStats;
 
         if (player != nullptr)
@@ -386,12 +566,28 @@ void Battle::printBattleState() const
                 std::to_string(player->getStress()) +
                 "/200";
 
-            std::cout << GREEN << playerStats << RESET;
+            std::cout
+                << GREEN
+                << playerStats
+                << RESET;
         }
+
+
+        // Align the enemy's HP information with the
+        // enemy column, just like the character names.
 
         printColumnGap(playerStats);
 
-        // Enemy HP
+
+        // ==================================================
+        // ENEMY HP
+        // ==================================================
+        //
+        // Enemies display their current HP and maximum HP.
+        //
+        // We intentionally do not print stress or an
+        // HP placeholder for an empty enemy position.
+
         if (enemy != nullptr)
         {
             std::string enemyStats =
@@ -400,40 +596,312 @@ void Battle::printBattleState() const
                 "/" +
                 std::to_string(enemy->getMaxHP());
 
-            std::cout << CRIMSON << enemyStats << RESET;
+            std::cout
+                << CRIMSON
+                << enemyStats
+                << RESET;
         }
 
         std::cout << "\n";
 
-        // Player position
+
+        // ==================================================
+        // PLAYER POSITION
+        // ==================================================
+        //
+        // Retrieve the player's position through Party,
+        // which delegates to Formation.
+        //
+        // This means the display uses the formation's
+        // current position after a character moves.
+        //
+        // We do not print a position for an empty slot.
+
         std::string playerPosition;
 
         if (player != nullptr)
         {
             playerPosition =
                 "   Position: " +
-                std::to_string(playerParty.getPosition(*player));
+                std::to_string(
+                    playerParty.getPosition(*player)
+                );
 
-            std::cout << GREEN << playerPosition << RESET;
+            std::cout
+                << GREEN
+                << playerPosition
+                << RESET;
         }
+
+
+        // Keep the enemy position aligned with the
+        // corresponding player information.
 
         printColumnGap(playerPosition);
 
-        // Enemy position
+
+        // ==================================================
+        // ENEMY POSITION
+        // ==================================================
+        //
+        // Retrieve the enemy's position through its Party
+        // and Formation in the same way as the players.
+        //
+        // If there is no enemy in this slot, the enemy
+        // position is omitted entirely.
+
         if (enemy != nullptr)
         {
             std::string enemyPosition =
                 "   Position: " +
-                std::to_string(enemyParty.getPosition(*enemy));
+                std::to_string(
+                    enemyParty.getPosition(*enemy)
+                );
 
-            std::cout << CRIMSON << enemyPosition << RESET;
+            std::cout
+                << CRIMSON
+                << enemyPosition
+                << RESET;
         }
+
+        // Leave a blank line between formation positions
+        // so each character's information is easy to scan.
 
         std::cout << "\n\n";
     }
 
-    std::cout << "================================================================================\n";
+
+    // ==================================================
+    // BATTLE FOOTER
+    // ==================================================
+    //
+    // Finish the screen with the bottom border.
+    //
+    // The complete battle state can now be redrawn
+    // without losing the last recorded action message.
+
+    std::cout
+        << "================================================================================\n";
 }
+
+
+
+bool Battle::movePartyMember()
+{
+    // ==================================================
+    // 1. DISPLAY THE CURRENT FORMATION
+    // ==================================================
+    //
+    // Clear the console and redraw the battle state so
+    // the player can see the current positions.
+    //
+    // Party::printFormation() displays positions 1-4.
+    // Party delegates formation management to Formation.
+
+    while (true)
+    {
+        clearScreen();
+        printBattleState();
+
+        std::cout << "\n";
+        std::cout << "====================================\n";
+        std::cout << "       MOVE PARTY MEMBER\n";
+        std::cout << "====================================\n\n";
+
+        playerParty.printFormation();
+
+        std::cout << "\n0. Back\n";
+
+
+        // ==================================================
+        // 2. SELECT THE CHARACTER TO MOVE
+        // ==================================================
+        //
+        // The player selects a formation position, not
+        // a character name.
+        //
+        // Position 0 cancels the operation and returns
+        // to the character's action menu.
+
+        int fromPosition = Input::getIntInRange(
+            "\nSelect a position to move: ",
+            0,
+            4
+        );
+
+        if (fromPosition == 0)
+        {
+            return false;
+        }
+
+
+        // Retrieve the character occupying that position.
+
+        Character* movingCharacter =
+            playerParty.getMember(fromPosition);
+
+
+        // A position must contain a character.
+
+        if (movingCharacter == nullptr)
+        {
+            std::cout << "There is no character in that position.\n";
+
+            Input::waitForEnter();
+            continue;
+        }
+
+
+        // Only living characters can be selected to move.
+
+        if (!movingCharacter->isAlive())
+        {
+            std::cout << "A defeated character cannot be moved.\n";
+
+            Input::waitForEnter();
+            continue;
+        }
+
+
+        // ==================================================
+        // 3. SELECT THE DESTINATION
+        // ==================================================
+        //
+        // Show the current formation again so the player
+        // can decide where the selected character should go.
+        //
+        // An occupied destination causes a swap.
+        // An empty destination receives the character.
+
+        clearScreen();
+        printBattleState();
+
+        std::cout << "\n";
+        std::cout << "Moving "
+                  << movingCharacter->getName()
+                  << " from position "
+                  << fromPosition
+                  << ".\n\n";
+
+        playerParty.printFormation();
+
+        std::cout << "\n0. Cancel\n";
+
+        int toPosition = Input::getIntInRange(
+            "Choose a destination: ",
+            0,
+            4
+        );
+
+        if (toPosition == 0)
+        {
+            return false;
+        }
+
+
+        // Moving to the same position changes nothing.
+        // Let the player choose again.
+
+        if (fromPosition == toPosition)
+        {
+            std::cout
+                << "That character is already in that position.\n";
+
+            Input::waitForEnter();
+            continue;
+        }
+
+
+        // ==================================================
+        // 4. RECORD WHO OCCUPIES THE DESTINATION
+        // ==================================================
+        //
+        // Save this before moving anyone.
+        //
+        // If a character already occupies the destination,
+        // Formation::moveMember() will swap the two.
+        //
+        // We retain their name so the action message can
+        // explain the resulting movement.
+
+        Character* displacedCharacter =
+            playerParty.getMember(toPosition);
+
+
+        // ==================================================
+        // 5. MOVE THE CHARACTER THROUGH FORMATION
+        // ==================================================
+        //
+        // Do not edit positions directly here.
+        //
+        // Party::moveMember() delegates to Formation,
+        // which updates the formation slots and synchronizes
+        // the affected characters' current positions.
+        //
+        // This keeps your battle range checks working.
+
+        bool moveSucceeded = playerParty.moveMember(
+            fromPosition,
+            toPosition
+        );
+
+        if (!moveSucceeded)
+        {
+            std::cout << "The formation could not be changed.\n";
+
+            Input::waitForEnter();
+            continue;
+        }
+
+
+        // ==================================================
+        // 6. SAVE THE LAST-ACTION MESSAGE
+        // ==================================================
+        //
+        // printBattleState() displays lastActionMessage
+        // whenever the battle screen is redrawn.
+        //
+        // Describe the move differently depending on
+        // whether the destination was occupied.
+
+        if (displacedCharacter != nullptr)
+        {
+            lastActionMessage =
+                movingCharacter->getName() +
+                " moves from position " +
+                std::to_string(fromPosition) +
+                " to position " +
+                std::to_string(toPosition) +
+                ", swapping positions with " +
+                displacedCharacter->getName() +
+                ".";
+        }
+        else
+        {
+            lastActionMessage =
+                movingCharacter->getName() +
+                " moves from position " +
+                std::to_string(fromPosition) +
+                " to position " +
+                std::to_string(toPosition) +
+                ".";
+        }
+
+
+        // ==================================================
+        // 7. FINISH THE MOVEMENT ACTION
+        // ==================================================
+        //
+        // Return true to indicate a successful move.
+        //
+        // playerTurn() will then end the current hero's
+        // turn and let the battle continue.
+
+        return true;
+    }
+}
+
+
 
 // --------------------------------------------------
 // Party alive checks
@@ -617,18 +1085,57 @@ Character* Battle::chooseAllyTarget()
 // Basic attack menu
 // --------------------------------------------------
 
+
 bool Battle::attackMenu(Character& character)
 {
+    // ==================================================
+    // 1. RETRIEVE THE CHARACTER'S ATTACK RULES
+    // ==================================================
+    //
+    // PositionRules contains four values:
+    //
+    // userMin   = minimum position the attacker can use
+    // userMax   = maximum position the attacker can use
+    // targetMin = minimum enemy position that can be hit
+    // targetMax = maximum enemy position that can be hit
+    //
+    // getAttackRules() retrieves the correct rules for
+    // the current character.
+    //
+    // Example: Highwayman
+    // { 1, 3, 2, 4 }
+    // Can attack from positions 1-3 and target enemies
+    // in positions 2-4.
+
     PositionRules rules;
 
     if (!getAttackRules(character, rules))
     {
-        std::cout << "No basic attack rules exist for this character.\n";
+        // No attack rules exist for this character.
+        // Do not execute the attack.
+
+        std::cout
+            << "No basic attack rules exist for this character.\n";
+
         Input::waitForEnter();
+
         return false;
     }
 
-    // Check the attacking character's formation position.
+
+    // ==================================================
+    // 2. CHECK THE ATTACKER'S FORMATION POSITION
+    // ==================================================
+    //
+    // Retrieve the character's current position through
+    // playerParty, which delegates to Formation.
+    //
+    // This is important because Formation is responsible
+    // for managing the party's current arrangement.
+    //
+    // We check the attacker's position before allowing
+    // them to choose an enemy target.
+
     int userPosition = playerParty.getPosition(character);
 
     if (!isPositionInRange(
@@ -643,10 +1150,29 @@ bool Battle::attackMenu(Character& character)
             << ".\n";
 
         Input::waitForEnter();
+
+        // Return false because no attack occurred.
+        // This allows playerTurn() to let the player
+        // choose another action instead of losing a turn.
+
         return false;
     }
 
-    // Only show enemies that the basic attack can reach.
+
+    // ==================================================
+    // 3. SELECT A VALID ENEMY TARGET
+    // ==================================================
+    //
+    // Only enemies within the basic attack's target
+    // range are offered to the player.
+    //
+    // chooseEnemyTarget() also handles:
+    // - Dead enemies
+    // - Invalid target positions
+    // - The player's Back option
+    //
+    // If the player backs out, no attack occurs.
+
     Character* target = chooseEnemyTarget(
         character,
         rules.targetMin,
@@ -655,22 +1181,134 @@ bool Battle::attackMenu(Character& character)
 
     if (target == nullptr)
     {
+        // No target was selected, so do not consume
+        // the player's turn or replace the last action.
+
         return false;
     }
 
-    // Call the base attack directly.
-    // Battle has already checked the user's and target's positions.
+
+    // ==================================================
+    // 4. RECORD THE TARGET'S HP BEFORE THE ATTACK
+    // ==================================================
+    //
+    // Save the target's current HP before applying damage.
+    //
+    // Comparing HP before and after the attack allows
+    // us to determine how much HP the target actually lost.
+    //
+    // This is better than relying on the attack's random
+    // damage roll because the target might have less HP
+    // remaining than the damage dealt.
+
+    int hpBefore = target->getHP();
+
+
+    // ==================================================
+    // 5. EXECUTE THE BASIC ATTACK
+    // ==================================================
+    //
+    // Call Character's base attack implementation directly.
+    //
+    // The Battle system has already validated the
+    // attacker's position and selected a valid target.
+    //
+    // Calling the base implementation directly prevents
+    // an old character-specific attack override from
+    // applying a second set of position restrictions.
+
     character.Character::attack(*target);
+
+
+    // ==================================================
+    // 6. CALCULATE THE ACTUAL DAMAGE DEALT
+    // ==================================================
+    //
+    // Example:
+    // HP before attack = 20
+    // HP after attack  = 13
+    // Actual damage    = 7
+    //
+    // This reports the amount of HP actually lost.
+
+    int damageDealt = hpBefore - target->getHP();
+
+
+    // ==================================================
+    // 7. SAVE THE ACTION MESSAGE
+    // ==================================================
+    //
+    // lastActionMessage is stored in Battle.h as a
+    // std::string member variable.
+    //
+    // printBattleState() displays this message after
+    // the console clears and the battle screen redraws.
+    //
+    // We save the result here, after the attack has
+    // actually executed, so the message reflects what
+    // happened rather than what was intended.
+
+    lastActionMessage =
+        character.getName() +
+        " attacks " +
+        target->getName() +
+        " for " +
+        std::to_string(damageDealt) +
+        " damage.";
+
+
+    // ==================================================
+    // 8. CHECK WHETHER THE TARGET WAS DEFEATED
+    // ==================================================
+    //
+    // If the attack reduced the target's HP to zero,
+    // append a defeat message to the existing action.
+    //
+    // The message is displayed together with the
+    // damage result on the next battle-screen redraw.
+
+    if (!target->isAlive())
+    {
+        lastActionMessage +=
+            " " +
+            target->getName() +
+            " has been defeated!";
+    }
+
+
+    // ==================================================
+    // 9. REPORT THAT THE ACTION SUCCEEDED
+    // ==================================================
+    //
+    // Returning true tells playerTurn() that an attack
+    // was completed and the character's turn is over.
+    //
+    // This differs from returning false when the player
+    // cannot attack or backs out of target selection.
 
     return true;
 }
+
 
 // --------------------------------------------------
 // Skill menu
 // --------------------------------------------------
 
+
 void Battle::skillMenu(Character& character)
 {
+    // ==================================================
+    // 1. DISPLAY THE SKILL MENU
+    // ==================================================
+    //
+    // Keep showing the skill menu until:
+    // - The player successfully uses a skill.
+    // - The player chooses Back.
+    //
+    // The battle screen is redrawn each time the menu
+    // opens. printBattleState() also displays the most
+    // recent action saved in lastActionMessage.
+
     while (true)
     {
         clearScreen();
@@ -681,9 +1319,21 @@ void Battle::skillMenu(Character& character)
         std::cout << character.getName() << " Skills\n";
         std::cout << "====================================\n";
 
+        // Display the skills available to this character.
         character.printSkills();
 
         std::cout << "0. Back\n";
+
+
+        // ==================================================
+        // 2. GET THE PLAYER'S CHOICE
+        // ==================================================
+        //
+        // Input::getInt() handles invalid integer input.
+        //
+        // Choosing 0 returns to the character's action menu.
+        // No skill is used and the previous action message
+        // remains unchanged.
 
         int choice = Input::getInt(
             "\nChoose a skill: "
@@ -694,17 +1344,49 @@ void Battle::skillMenu(Character& character)
             return;
         }
 
+
+        // ==================================================
+        // 3. RETRIEVE THE SKILL'S POSITION RULES
+        // ==================================================
+        //
+        // PositionRules contains:
+        //
+        // userMin   = minimum position the character can use
+        // userMax   = maximum position the character can use
+        // targetMin = minimum target position
+        // targetMax = maximum target position
+        //
+        // getSkillRules() determines these rules based on
+        // the character name and the selected skill number.
+        //
+        // If there are no rules for this skill, the choice
+        // is invalid and the player remains in this menu.
+
         PositionRules rules;
 
         if (!getSkillRules(character, choice, rules))
         {
             std::cout << "Invalid skill.\n";
+
             Input::waitForEnter();
+
             continue;
         }
 
-        // Check the user's formation position before selecting a target.
-        int userPosition = playerParty.getPosition(character);
+
+        // ==================================================
+        // 4. VALIDATE THE USER'S FORMATION POSITION
+        // ==================================================
+        //
+        // Retrieve the character's position from playerParty.
+        // Party delegates this request to Formation.
+        //
+        // This ensures skill restrictions use the current
+        // formation rather than relying on old range checks
+        // inside individual character classes.
+
+        int userPosition =
+            playerParty.getPosition(character);
 
         if (!isPositionInRange(
             userPosition,
@@ -718,16 +1400,39 @@ void Battle::skillMenu(Character& character)
                 << ".\n";
 
             Input::waitForEnter();
+
+            // The skill was not used.
+            // Allow the player to select a different skill.
+
             continue;
         }
+
+
+        // ==================================================
+        // 5. DETERMINE THE REQUIRED TARGET TYPE
+        // ==================================================
+        //
+        // Each character identifies whether a skill targets
+        // an enemy or an ally.
+        //
+        // Battle uses this information to open the
+        // appropriate target-selection menu.
 
         TargetType targetType =
             character.getSkillTargetType(choice);
 
         Character* target = nullptr;
 
+
+        // ==================================================
+        // 6. SELECT A VALID TARGET
+        // ==================================================
+
         if (targetType == TargetType::Enemy)
         {
+            // Only show enemies within the skill's
+            // permitted target-position range.
+
             target = chooseEnemyTarget(
                 character,
                 rules.targetMin,
@@ -736,24 +1441,205 @@ void Battle::skillMenu(Character& character)
         }
         else if (targetType == TargetType::Ally)
         {
+            // Open the ally-selection menu.
             target = chooseAllyTarget();
         }
+
+        // If the player backed out of target selection,
+        // do not execute the skill or change the action log.
 
         if (target == nullptr)
         {
             continue;
         }
 
-        // The corresponding character skill performs the actual effect.
+
+        // ==================================================
+        // 7. RECORD THE TARGET'S HP BEFORE THE SKILL
+        // ==================================================
+        //
+        // Store the target's current HP so we can calculate
+        // what actually happened after the skill executes.
+        //
+        // For damaging skills, this measures actual HP lost.
+        // For healing skills, this measures actual HP gained.
+        //
+        // For example:
+        // Before: 12 HP
+        // After:   5 HP
+        // Damage:  7 HP
+
+        int hpBefore = target->getHP();
+
+
+        // ==================================================
+        // 8. DETERMINE THE SKILL NAME
+        // ==================================================
+        //
+        // Save a readable skill name for the action message.
+        //
+        // These names correspond to the skills currently
+        // displayed by your four playable characters.
+        //
+        // The skill number is only interpreted after
+        // getSkillRules() confirms that it is valid.
+
+        std::string skillName = "Skill";
+
+        if (character.getName() == "Crusader")
+        {
+            if (choice == 1)
+            {
+                skillName = "Holy Strike";
+            }
+            else if (choice == 2)
+            {
+                skillName = "Heal Ally";
+            }
+        }
+        else if (character.getName() == "Highwayman")
+        {
+            if (choice == 1)
+            {
+                skillName = "Pistol Shot";
+            }
+            else if (choice == 2)
+            {
+                skillName = "Melee Attack";
+            }
+        }
+        else if (character.getName() == "Plague Doctor")
+        {
+            if (choice == 1)
+            {
+                skillName = "Plague Grenade";
+            }
+            else if (choice == 2)
+            {
+                skillName = "Heal Ally";
+            }
+        }
+        else if (character.getName() == "Vestal")
+        {
+            if (choice == 1)
+            {
+                skillName = "Smite";
+            }
+            else if (choice == 2)
+            {
+                skillName = "Heal Ally";
+            }
+        }
+
+
+        // ==================================================
+        // 9. EXECUTE THE SKILL
+        // ==================================================
+        //
+        // At this point:
+        // - The skill number has been validated.
+        // - The user's position has been validated.
+        // - A valid target has been selected.
+        //
+        // The character class now executes the actual
+        // damage, healing, or other ability effect.
+
         character.useSkill(choice, *target);
+
+
+        // ==================================================
+        // 10. CALCULATE THE RESULT
+        // ==================================================
+        //
+        // Compare HP before and after the skill.
+        //
+        // Enemy target:
+        //     HP lost = damage dealt.
+        //
+        // Ally target:
+        //     HP gained = healing received.
+        //
+        // Measuring actual HP changes means the action
+        // message won't claim a hero recovered 8 HP if
+        // that hero only needed 3 HP to reach full health.
+
+        int hpAfter = target->getHP();
+
+
+        // ==================================================
+        // 11. SAVE THE LAST-ACTION MESSAGE
+        // ==================================================
+        //
+        // printBattleState() displays this string whenever
+        // the battle screen is redrawn.
+        //
+        // Saving the message here ensures it describes
+        // the skill that has just executed.
+        //
+        // This message replaces the previous action
+        // instead of allowing the console to fill up.
+
+        if (targetType == TargetType::Enemy)
+        {
+            int damageDealt = hpBefore - hpAfter;
+
+            lastActionMessage =
+                character.getName() +
+                " uses " +
+                skillName +
+                " on " +
+                target->getName() +
+                ", dealing " +
+                std::to_string(damageDealt) +
+                " damage.";
+
+
+            // Append a defeat message if the attack
+            // reduced the enemy's HP to zero.
+
+            if (!target->isAlive())
+            {
+                lastActionMessage +=
+                    " " +
+                    target->getName() +
+                    " has been defeated!";
+            }
+        }
+        else if (targetType == TargetType::Ally)
+        {
+            int healingReceived = hpAfter - hpBefore;
+
+            lastActionMessage =
+                character.getName() +
+                " uses " +
+                skillName +
+                " on " +
+                target->getName() +
+                ", restoring " +
+                std::to_string(healingReceived) +
+                " HP.";
+        }
+
+
+        // ==================================================
+        // 12. FINISH THE TURN
+        // ==================================================
+        //
+        // The skill has successfully executed.
+        // Return to playerTurn(), which ends this character's
+        // turn and allows the battle loop to continue.
 
         return;
     }
 }
 
+
+
+
 // --------------------------------------------------
 // Player turn
 // --------------------------------------------------
+
 
 void Battle::playerTurn(Character& character)
 {
@@ -768,6 +1654,7 @@ void Battle::playerTurn(Character& character)
         gainedStress = true;
     }
 
+
     while (true)
     {
         clearScreen();
@@ -778,6 +1665,7 @@ void Battle::playerTurn(Character& character)
         std::cout << character.getName() << "'s Turn\n";
         std::cout << "====================================\n";
 
+        // Display whether this hero gained stress this turn.
         if (gainedStress)
         {
             std::cout
@@ -796,11 +1684,14 @@ void Battle::playerTurn(Character& character)
         std::cout << "\n";
         std::cout << "1. Attack\n";
         std::cout << "2. Skills\n";
-        std::cout << "3. Party Status\n";
-        std::cout << "4. Pass\n";
+        std::cout << "3. Move Party Member\n";
+        std::cout << "4. Party Status\n";
+        std::cout << "5. Pass\n";
 
-        int choice = Input::getInt(
-            "\nChoose an action: "
+        int choice = Input::getIntInRange(
+            "\nChoose an action: ",
+            1,
+            5
         );
 
         if (choice == 1)
@@ -810,7 +1701,8 @@ void Battle::playerTurn(Character& character)
                 return;
             }
 
-            // Back or invalid position does not consume the turn.
+            // No valid attack occurred, so the player
+            // can select another action.
             continue;
         }
 
@@ -822,17 +1714,30 @@ void Battle::playerTurn(Character& character)
 
         if (choice == 3)
         {
+            if (movePartyMember())
+            {
+                // Successful movement consumes this turn.
+                return;
+            }
+
+            // Cancelled movement does not consume the turn.
             continue;
         }
 
         if (choice == 4)
         {
+            // Preserve your existing Party Status behavior.
+            // This redraws the battle screen.
+            continue;
+        }
+
+        if (choice == 5)
+        {
             std::cout << character.getName() << " passes.\n";
             return;
         }
-
-        std::cout << "Invalid choice.\n";
     }
+
 }
 
 // --------------------------------------------------
@@ -902,56 +1807,190 @@ void Battle::enemyTurn(Character& enemy)
 // Start battle
 // --------------------------------------------------
 
+
 void Battle::start()
 {
-    std::cout << "\n";
+    // ==================================================
+    // 1. INITIALIZE THE BATTLE SCREEN
+    // ==================================================
+    //
+    // Clear previous room or menu text, then display
+    // the battle introduction and both formations.
+    //
+    // The battle's enemy party has already been generated
+    // by the Battle constructor.
+
+    clearScreen();
+
     std::cout << "====================================\n";
     std::cout << "          BATTLE START!\n";
     std::cout << "====================================\n";
 
     printBattleState();
 
+
+    // ==================================================
+    // 2. MAIN BATTLE LOOP
+    // ==================================================
+    //
+    // Continue fighting while both parties have at least
+    // one living character.
+    //
+    // playerPartyAlive() and enemyPartyAlive() check
+    // the current state of each party.
+
     while (playerPartyAlive() && enemyPartyAlive())
     {
-        // Player characters act in formation order.
-        for (int i = 1; i <= 4; i++)
+        // ==============================================
+        // 3. RECORD THE PLAYER TURN ORDER
+        // ==============================================
+        //
+        // Save the living player characters in their
+        // current formation order at the beginning of
+        // the round.
+        //
+        // IMPORTANT:
+        // We store Character pointers, not positions.
+        //
+        // If a character moves during combat, their
+        // pointer still refers to that same character.
+        //
+        // Example:
+        // Initial order: Crusader, Highwayman, Plague Doctor, Vestal
+        //
+        // If Crusader swaps Highwayman and Plague Doctor,
+        // the scheduled turn order remains unchanged.
+        //
+        // Their new positions affect attack and skill
+        // ranges immediately, but do not change who acts
+        // next during this round.
+
+        Character* playerTurnOrder[4] = { nullptr };
+        int playerTurnCount = 0;
+
+        for (int position = 1; position <= 4; position++)
         {
+            Character* character =
+                playerParty.getMember(position);
+
+            // Only living characters are scheduled.
+            if (character != nullptr && character->isAlive())
+            {
+                playerTurnOrder[playerTurnCount] = character;
+                playerTurnCount++;
+            }
+        }
+
+
+        // ==============================================
+        // 4. PROCESS PLAYER TURNS
+        // ==============================================
+        //
+        // Process the saved pointers rather than looking
+        // up a new character at each formation position.
+        //
+        // This prevents movement from changing the turn
+        // order or causing a character to act twice.
+        //
+        // We still check whether the character is alive
+        // because they might be defeated before their
+        // scheduled turn.
+
+        for (int i = 0; i < playerTurnCount; i++)
+        {
+            // End the player phase immediately if all
+            // enemies have been defeated.
             if (!enemyPartyAlive())
             {
                 break;
             }
 
-            Character* character = playerParty.getMember(i);
+            Character* character = playerTurnOrder[i];
 
+            // A defeated character cannot take a turn.
             if (character != nullptr && character->isAlive())
             {
                 playerTurn(*character);
             }
         }
 
+
+        // ==============================================
+        // 5. CHECK FOR PLAYER VICTORY
+        // ==============================================
+        //
+        // If the player party defeated every enemy during
+        // its phase, there is no reason to start the
+        // enemy phase.
+
         if (!enemyPartyAlive())
         {
             break;
         }
 
-        // Enemies act in formation order.
-        for (int i = 1; i <= 4; i++)
+
+        // ==============================================
+        // 6. PROCESS ENEMY TURNS
+        // ==============================================
+        //
+        // Enemies continue to act in formation order.
+        //
+        // Their turns are looked up by position, matching
+        // your existing enemy-turn system.
+        //
+        // Movement currently affects the player formation,
+        // so we can leave the enemy turn logic unchanged.
+
+        for (int position = 1; position <= 4; position++)
         {
+            // Stop the enemy phase if all heroes have
+            // been defeated.
             if (!playerPartyAlive())
             {
                 break;
             }
 
-            Character* enemy = enemyParty.getMember(i);
+            Character* enemy =
+                enemyParty.getMember(position);
 
+            // Only living enemies can act.
             if (enemy != nullptr && enemy->isAlive())
             {
                 enemyTurn(*enemy);
             }
         }
 
+
+        // ==============================================
+        // 7. REDRAW THE BATTLE STATE
+        // ==============================================
+        //
+        // After both sides have acted, display the
+        // updated formations, HP, stress, and positions.
+        //
+        // printBattleState() also displays the latest
+        // action stored in lastActionMessage.
+
+        clearScreen();
         printBattleState();
     }
+
+
+    // ==================================================
+    // 8. DISPLAY THE FINAL BATTLE RESULT
+    // ==================================================
+    //
+    // The battle loop has ended because one party has
+    // no living members remaining.
+    //
+    // Clear the screen and display the final battle
+    // state before announcing victory or defeat.
+    //
+    // This allows the player to see the final HP values
+    // and the action that ended the battle.
+
+    clearScreen();
+    printBattleState();
 
     std::cout << "\n";
     std::cout << "====================================\n";
@@ -967,6 +2006,7 @@ void Battle::start()
 
     std::cout << "====================================\n";
 }
+
 
 // --------------------------------------------------
 // Party accessors
