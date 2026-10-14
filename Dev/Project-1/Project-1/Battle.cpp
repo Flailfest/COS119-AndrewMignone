@@ -1643,7 +1643,8 @@ void Battle::skillMenu(Character& character)
 
 void Battle::playerTurn(Character& character)
 {
-    // Stress is rolled once per turn, not once per menu redraw.
+    // Roll for stress once at the start of the turn.
+    // Opening menus or redrawing the screen won't reroll it.
     bool gainedStress = false;
     int stressIncrease = 0;
 
@@ -1653,7 +1654,6 @@ void Battle::playerTurn(Character& character)
         character.addStress(stressIncrease);
         gainedStress = true;
     }
-
 
     while (true)
     {
@@ -1665,7 +1665,7 @@ void Battle::playerTurn(Character& character)
         std::cout << character.getName() << "'s Turn\n";
         std::cout << "====================================\n";
 
-        // Display whether this hero gained stress this turn.
+        // Display the stress change for this turn.
         if (gainedStress)
         {
             std::cout
@@ -1681,63 +1681,66 @@ void Battle::playerTurn(Character& character)
                 << " does not gain stress this turn.\n";
         }
 
+        // Available actions.
         std::cout << "\n";
         std::cout << "1. Attack\n";
         std::cout << "2. Skills\n";
         std::cout << "3. Move Party Member\n";
-        std::cout << "4. Party Status\n";
-        std::cout << "5. Pass\n";
+        std::cout << "4. Pass\n";
 
         int choice = Input::getIntInRange(
             "\nChoose an action: ",
             1,
-            5
+            4
         );
 
+        // ------------------------------------------
+        // OPTION 1: ATTACK
+        // ------------------------------------------
         if (choice == 1)
         {
             if (attackMenu(character))
             {
-                return;
+                return; // Successful attack consumes the turn.
             }
 
-            // No valid attack occurred, so the player
-            // can select another action.
-            continue;
+            continue; // Back or invalid action: choose again.
         }
 
+        // ------------------------------------------
+        // OPTION 2: SKILLS
+        // ------------------------------------------
         if (choice == 2)
         {
             skillMenu(character);
             return;
         }
 
+        // ------------------------------------------
+        // OPTION 3: MOVE PARTY MEMBER
+        // ------------------------------------------
         if (choice == 3)
         {
             if (movePartyMember())
             {
-                // Successful movement consumes this turn.
-                return;
+                return; // Successful movement consumes the turn.
             }
 
-            // Cancelled movement does not consume the turn.
-            continue;
+            continue; // Cancelled movement: choose again.
         }
 
+        // ------------------------------------------
+        // OPTION 4: PASS
+        // ------------------------------------------
         if (choice == 4)
         {
-            // Preserve your existing Party Status behavior.
-            // This redraws the battle screen.
-            continue;
-        }
+            std::cout
+                << character.getName()
+                << " passes.\n";
 
-        if (choice == 5)
-        {
-            std::cout << character.getName() << " passes.\n";
             return;
         }
     }
-
 }
 
 // --------------------------------------------------
