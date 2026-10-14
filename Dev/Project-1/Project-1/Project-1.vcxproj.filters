@@ -84,6 +84,12 @@
     <ClCompile Include="Formation.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Floor.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="FloorTest.cpp">
+      <Filter>Source Files\Testing</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Vestal.h">
@@ -133,6 +139,12 @@
     </ClInclude>
     <ClInclude Include="Formation.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Floor.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="FloorTest.h">
+      <Filter>Header Files\Testing</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

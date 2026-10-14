@@ -1,10 +1,13 @@
 #include "Room.h"
 #include "Battle.h"
 #include "Input.h"
+#include "Inventory.h"
 
 #include <iostream>
 #include <random>
 
+namespace
+{
 void clearRoomScreen()
 {
 #ifdef _WIN32
@@ -13,10 +16,16 @@ void clearRoomScreen()
     system("clear");
 #endif
 }
+}
 
 Room::Room()
 {
     type = generateRandomRoom();
+}
+
+Room::Room(RoomType roomType)
+    : type(roomType)
+{
 }
 
 RoomType Room::generateRandomRoom()
@@ -57,9 +66,21 @@ bool Room::battleOccurs() const
     return distribution(generator) <= 30;
 }
 
-void Room::enter(
+void Room::enter(Party& party, LightLevel lightLevel)
+{
+    enterInternal(party, lightLevel, nullptr, nullptr);
+}
+
+void Room::enter(Party& party, LightLevel lightLevel, Inventory& inventory, int& gold)
+{
+    enterInternal(party, lightLevel, &inventory, &gold);
+}
+
+void Room::enterInternal(
     Party& party,
-    LightLevel lightLevel
+    LightLevel lightLevel,
+    Inventory* inventory,
+    int* gold
 )
 {
     clearRoomScreen();
@@ -85,6 +106,16 @@ void Room::enter(
     case RoomType::Fountain:
         std::cout << "Room Type: Fountain\n";
         break;
+
+    case RoomType::Entrance:
+        std::cout << "Room Type: Entrance\n";
+        break;
+
+    case RoomType::Exit:
+        std::cout << "Room Type: Floor Exit\n";
+        std::cout << "The stairs lead deeper into the cellar.\n";
+        Input::waitForEnter();
+        return;
     }
 
     std::cout << "\n";
@@ -125,7 +156,7 @@ void Room::enter(
         }
     }
 
-    triggerEvent(party);
+    triggerEvent(party, inventory, gold);
 
     std::cout << "\n";
     std::cout << "====================================\n";
@@ -148,7 +179,7 @@ void Room::enter(
 
     std::cout << "\n";
 
-    if (battleOccurs())
+    if (type != RoomType::Entrance && type != RoomType::Exit && battleOccurs())
     {
         std::cout << "The room is disturbed...\n";
         std::cout << "An enemy party appears!\n";
@@ -166,7 +197,7 @@ void Room::enter(
     }
 }
 
-void Room::triggerEvent(Party& party)
+void Room::triggerEvent(Party& party, Inventory* inventory, int* gold)
 {
     switch (type)
     {
@@ -179,11 +210,15 @@ void Room::triggerEvent(Party& party)
         break;
 
     case RoomType::Chest:
-        triggerChest(party);
+        triggerChest(party, inventory, gold);
         break;
 
     case RoomType::Fountain:
         triggerFountain(party);
+        break;
+
+    case RoomType::Entrance:
+    case RoomType::Exit:
         break;
     }
 }
@@ -263,10 +298,26 @@ void Room::triggerTrap(Party& party)
         << " gains 5 additional stress.\n";
 }
 
-void Room::triggerChest(Party& party)
+void Room::triggerChest(Party& party, Inventory* inventory, int* gold)
 {
+    (void)party;
     std::cout << "A chest has been discovered!\n";
-    std::cout << "The chest has not been opened yet.\n";
+
+    if (gold == nullptr)
+    {
+        std::cout << "The chest is locked away from expedition supplies.\n";
+        return;
+    }
+
+    static std::random_device rd;
+    static std::mt19937 generator(rd());
+    std::uniform_int_distribution<int> rewardDistribution(15, 35);
+    const int reward = rewardDistribution(generator);
+
+    *gold += reward;
+    std::cout << "You open the chest and find " << reward << " gold.\n";
+    std::cout << "Your gold pouch now contains " << *gold << " gold.\n";
+    (void)inventory;
 }
 
 void Room::triggerFountain(Party& party)
