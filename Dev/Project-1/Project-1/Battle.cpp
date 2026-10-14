@@ -360,393 +360,356 @@ void Battle::printCharacterStatus(
 }
 
 
+
 void Battle::printBattleState() const
 {
     // ==================================================
-    // COLOR SETTINGS
+    // 1. DISPLAY SETTINGS
     // ==================================================
-    //
-    // These ANSI escape codes control the text colors
-    // displayed in the console.
     //
     // GREEN   = Player party
     // CRIMSON = Enemy party
-    // RESET   = Restores the console's default color
+    // GOLD    = Narrator
+    // RESET   = Restore the default console color
     //
-    // Keeping these in local constants makes the
-    // display code easier to read and maintain.
+    // The panel width is kept at 100 characters.
+    // This leaves room for the interface in a terminal
+    // configured for approximately 120 columns.
 
     const std::string GREEN = "\033[32m";
     const std::string CRIMSON = "\033[38;5;88m";
+    const std::string GOLD = "\033[38;5;180m";
     const std::string RESET = "\033[0m";
 
-
-    // ==================================================
-    // COLUMN CONFIGURATION
-    // ==================================================
-    //
-    // COLUMN_WIDTH determines how far apart the two
-    // party columns appear on the screen.
-    //
-    // printColumnGap() uses the visible text length to
-    // calculate the spacing between the columns.
-    //
-    // This keeps the enemy party aligned even when
-    // character names have different lengths.
-
-    const int columnWidth = 45;
+    const int panelWidth = 100;
+    const int playerColumnWidth = 60;
 
 
     // ==================================================
-    // BATTLE HEADER
+    // 2. TEXT WRAPPING HELPER
     // ==================================================
     //
-    // Print the top border and the title.
+    // Long narration and action messages can exceed the
+    // available width of the screen.
     //
-    // The border gives the battle screen a clear
-    // beginning and separates it from other messages.
+    // This lambda wraps the text at word boundaries,
+    // rather than allowing long messages to stretch the
+    // entire battle interface horizontally.
+    //
+    // It prints two leading spaces for visual padding.
 
-    std::cout << "\n";
+    auto printWrappedText =
+        [](const std::string& text, int maximumWidth)
+        {
+            if (text.empty())
+            {
+                std::cout << "  \n";
+                return;
+            }
 
-    std::cout
-        << "================================================================================\n";
+            std::size_t start = 0;
 
-    std::cout
-        << "                                  BATTLE\n";
+            while (start < text.length())
+            {
+                // Find the maximum end position for this line.
+                std::size_t end = start + maximumWidth;
 
-    std::cout
-        << "================================================================================\n\n";
+                if (end > text.length())
+                {
+                    end = text.length();
+                }
+
+                // If the text continues, prefer breaking at
+                // the last space before the width limit.
+                if (end < text.length())
+                {
+                    std::size_t space =
+                        text.rfind(' ', end);
+
+                    if (space != std::string::npos &&
+                        space > start)
+                    {
+                        end = space;
+                    }
+                }
+
+                // Print the current line.
+                std::cout
+                    << "  "
+                    << text.substr(start, end - start)
+                    << "\n";
+
+                // Start the next line and skip any spaces
+                // left behind by the previous line break.
+                start = end;
+
+                while (start < text.length() &&
+                    text[start] == ' ')
+                {
+                    start++;
+                }
+            }
+        };
 
 
     // ==================================================
-    // PARTY HEADERS
+    // 3. MESSAGE PANEL HELPER
     // ==================================================
     //
-    // Print PLAYER PARTY on the left and ENEMY PARTY
-    // on the right.
+    // Both the narrator and last-action messages use
+    // the same panel layout.
     //
-    // std::left and std::setw() align the player header
-    // with the player column.
+    // This avoids duplicating border, heading, and
+    // text-wrapping code.
     //
-    // ANSI color codes are applied around the displayed
-    // text so the two sides are easy to distinguish.
+    // The supplied color allows each panel to have
+    // its own visual identity.
+
+    auto printMessagePanel =
+        [&](const std::string& title,
+            const std::string& message,
+            const std::string& color)
+        {
+            std::cout
+                << color
+                << std::string(panelWidth, '=')
+                << RESET
+                << "\n";
+
+            std::cout
+                << color
+                << "  "
+                << title
+                << RESET
+                << "\n";
+
+            std::cout
+                << color
+                << std::string(panelWidth, '-')
+                << RESET
+                << "\n";
+
+            printWrappedText(message, panelWidth - 4);
+
+            std::cout
+                << color
+                << std::string(panelWidth, '=')
+                << RESET
+                << "\n";
+        };
+
+
+
+
+
+    // ==================================================
+    // 5. NARRATOR PANEL
+    // ==================================================
+    //
+    // The narrator is now displayed BEFORE the party
+    // formations, so the player sees the narrative first.
+    //
+    // If no narration has been assigned yet, display a
+    // default line instead of an empty message.
+
+    std::string displayedNarration = narratorMessage;
+
+    if (displayedNarration.empty())
+    {
+        displayedNarration =
+            "The cellar holds its breath.";
+    }
+
+    printMessagePanel(
+        "NARRATOR",
+        displayedNarration,
+        GOLD
+    );
+
+
+
+    // ==================================================
+    // 6. PARTY HEADERS
+    // ==================================================
+    //
+    // The two parties appear side by side:
+    //
+    // PLAYER PARTY                         ENEMY PARTY
+    //
+    // We use a fixed player-column width so that
+    // enemy information begins at a consistent column.
 
     std::cout
         << GREEN
         << std::left
-        << std::setw(columnWidth)
+        << std::setw(playerColumnWidth)
         << "PLAYER PARTY"
         << RESET;
 
     std::cout
         << CRIMSON
         << "ENEMY PARTY"
-        << RESET;
-
-    std::cout << "\n";
+        << RESET
+        << "\n";
 
     std::cout
-        << "--------------------------------------------------------------------------------\n";
+        << std::string(panelWidth, '-')
+        << "\n";
 
 
     // ==================================================
-    // LAST ACTION DISPLAY
+    // 7. DISPLAY THE FORMATIONS
     // ==================================================
     //
-    // lastActionMessage is a member variable in Battle.
+    // Each occupied position is now displayed on ONE
+    // line instead of using separate lines for names,
+    // HP/stress, and position.
     //
-    // Other battle functions save messages here after
-    // attacks, skills, and enemy actions.
+    // This significantly reduces the total screen height.
     //
-    // Because printBattleState() is called again after
-    // the console clears, displaying this variable lets
-    // the player see what happened during the last action.
+    // Player information:
+    // Name | HP | Stress | Position
     //
-    // If the string is empty, no action message is shown.
+    // Enemy information:
+    // Name | HP | Position
     //
-    // IMPORTANT:
-    // This section only DISPLAYs the message.
-    // attackMenu(), skillMenu(), and enemyTurn() are
-    // responsible for creating and saving the message.
-
-    if (!lastActionMessage.empty())
-    {
-        std::cout << "\n";
-
-        std::cout << "LAST ACTION\n";
-
-        std::cout << lastActionMessage << "\n";
-
-        std::cout << "\n";
-
-        // Add a divider below the action message so the
-        // message is visually separated from the parties.
-        std::cout
-            << "--------------------------------------------------------------------------------\n";
-    }
-    const std::string GOLD = "\033[38;5;180m";
-    
-
-    std::cout << "\n";
-    std::cout << GOLD;
-    std::cout << "===============================================\n";
-    std::cout << "                  NARRATOR\n";
-    std::cout << "===============================================\n";
-    std::cout << "\"" << narratorMessage << "\"\n";
-    std::cout << "===============================================\n";
-    std::cout << RESET << "\n";
-
-
-    // ==================================================
-    // CHARACTER FORMATION DISPLAY
-    // ==================================================
-    //
-    // Each party has four possible formation positions.
-    //
-    // We iterate from position 1 through position 4.
-    //
-    // getMember(i) retrieves the character occupying
-    // that slot. If a slot is empty, it returns nullptr.
-    //
-    // Empty enemy slots are intentionally not printed.
-    // This means a battle with two enemies displays only
-    // those two enemies rather than printing "Empty".
+    // Empty enemy slots are still omitted.
 
     for (int i = 1; i <= 4; i++)
     {
-        // Retrieve the current player and enemy from
-        // their respective formation positions.
-        Character* player = playerParty.getMember(i);
-        Character* enemy = enemyParty.getMember(i);
+        Character* player =
+            playerParty.getMember(i);
+
+        Character* enemy =
+            enemyParty.getMember(i);
 
 
-        // ==================================================
-        // CHARACTER NAMES
-        // ==================================================
+        // ----------------------------------------------
+        // PLAYER INFORMATION
+        // ----------------------------------------------
         //
-        // Start with empty strings.
-        //
-        // We only populate a string if a character
-        // actually occupies that formation position.
-        //
-        // The position number is included before each
-        // name to make movement and targeting easier
-        // to understand.
+        // Build the complete player row as a string.
+        // Keeping it as a string makes the column spacing
+        // independent of the ANSI color codes.
 
-        std::string playerName;
-        std::string enemyName;
+        std::string playerLine;
 
         if (player != nullptr)
         {
-            playerName =
-                std::to_string(i) + ". " + player->getName();
-        }
-
-        if (enemy != nullptr)
-        {
-            enemyName =
-                std::to_string(i) + ". " + enemy->getName();
-        }
-
-
-        // ==================================================
-        // PRINT PLAYER NAME
-        // ==================================================
-        //
-        // Player names are displayed in green.
-        //
-        // We do not print anything here if the player
-        // position is empty.
-
-        if (player != nullptr)
-        {
-            std::cout
-                << GREEN
-                << playerName
-                << RESET;
-        }
-
-
-        // ==================================================
-        // ALIGN THE ENEMY COLUMN
-        // ==================================================
-        //
-        // printColumnGap() calculates the remaining
-        // spacing needed to position the enemy column.
-        //
-        // It uses the player name's length so shorter
-        // names receive more spaces than longer names.
-        //
-        // If the player slot is empty, the empty string
-        // is passed and the spacing remains consistent.
-
-        printColumnGap(playerName);
-
-
-        // ==================================================
-        // PRINT ENEMY NAME
-        // ==================================================
-        //
-        // Only occupied enemy positions are displayed.
-        //
-        // If enemy is nullptr, neither the name nor
-        // an "Empty" placeholder is printed.
-
-        if (enemy != nullptr)
-        {
-            std::cout
-                << CRIMSON
-                << enemyName
-                << RESET;
-        }
-
-        std::cout << "\n";
-
-
-        // ==================================================
-        // PLAYER HP AND STRESS
-        // ==================================================
-        //
-        // Display the player's current HP, maximum HP,
-        // and accumulated stress.
-        //
-        // Stress is shown out of 200, matching the
-        // limits used by your existing Character system.
-        //
-        // These values are read directly from Character,
-        // so changes from combat or room events are
-        // reflected whenever this screen is redrawn.
-
-        std::string playerStats;
-
-        if (player != nullptr)
-        {
-            playerStats =
-                "   HP: " +
+            playerLine =
+                std::to_string(i) +
+                ". " +
+                player->getName() +
+                " | HP " +
                 std::to_string(player->getHP()) +
                 "/" +
                 std::to_string(player->getMaxHP()) +
-                "   Stress: " +
+                " | Stress " +
                 std::to_string(player->getStress()) +
-                "/200";
-
-            std::cout
-                << GREEN
-                << playerStats
-                << RESET;
+                "/200 | Pos " +
+                std::to_string(
+                    playerParty.getPosition(*player)
+                );
         }
 
 
-        // Align the enemy's HP information with the
-        // enemy column, just like the character names.
-
-        printColumnGap(playerStats);
-
-
-        // ==================================================
-        // ENEMY HP
-        // ==================================================
+        // ----------------------------------------------
+        // ENEMY INFORMATION
+        // ----------------------------------------------
         //
-        // Enemies display their current HP and maximum HP.
-        //
-        // We intentionally do not print stress or an
-        // HP placeholder for an empty enemy position.
+        // The enemy row contains HP and position.
+        // Enemy stress is not displayed because the
+        // current battle system only uses stress for heroes.
+
+        std::string enemyLine;
 
         if (enemy != nullptr)
         {
-            std::string enemyStats =
-                "   HP: " +
+            enemyLine =
+                std::to_string(i) +
+                ". " +
+                enemy->getName() +
+                " | HP " +
                 std::to_string(enemy->getHP()) +
                 "/" +
-                std::to_string(enemy->getMaxHP());
+                std::to_string(enemy->getMaxHP()) +
+                " | Pos " +
+                std::to_string(
+                    enemyParty.getPosition(*enemy)
+                );
+        }
 
+
+        // ----------------------------------------------
+        // PRINT THE TWO COLUMNS
+        // ----------------------------------------------
+        //
+        // setw() pads the player column to a fixed width.
+        //
+        // The color is applied only when the string is
+        // printed. As a result, color escape codes do not
+        // interfere with the visible column alignment.
+
+        std::cout
+            << GREEN
+            << std::left
+            << std::setw(playerColumnWidth)
+            << playerLine
+            << RESET;
+
+        if (enemy != nullptr)
+        {
             std::cout
                 << CRIMSON
-                << enemyStats
+                << enemyLine
                 << RESET;
         }
 
         std::cout << "\n";
-
-
-        // ==================================================
-        // PLAYER POSITION
-        // ==================================================
-        //
-        // Retrieve the player's position through Party,
-        // which delegates to Formation.
-        //
-        // This means the display uses the formation's
-        // current position after a character moves.
-        //
-        // We do not print a position for an empty slot.
-
-        std::string playerPosition;
-
-        if (player != nullptr)
-        {
-            playerPosition =
-                "   Position: " +
-                std::to_string(
-                    playerParty.getPosition(*player)
-                );
-
-            std::cout
-                << GREEN
-                << playerPosition
-                << RESET;
-        }
-
-
-        // Keep the enemy position aligned with the
-        // corresponding player information.
-
-        printColumnGap(playerPosition);
-
-
-        // ==================================================
-        // ENEMY POSITION
-        // ==================================================
-        //
-        // Retrieve the enemy's position through its Party
-        // and Formation in the same way as the players.
-        //
-        // If there is no enemy in this slot, the enemy
-        // position is omitted entirely.
-
-        if (enemy != nullptr)
-        {
-            std::string enemyPosition =
-                "   Position: " +
-                std::to_string(
-                    enemyParty.getPosition(*enemy)
-                );
-
-            std::cout
-                << CRIMSON
-                << enemyPosition
-                << RESET;
-        }
-
-        // Leave a blank line between formation positions
-        // so each character's information is easy to scan.
-
-        std::cout << "\n\n";
     }
 
 
     // ==================================================
-    // BATTLE FOOTER
+    // 8. END OF PARTY DISPLAY
     // ==================================================
     //
-    // Finish the screen with the bottom border.
-    //
-    // The complete battle state can now be redrawn
-    // without losing the last recorded action message.
+    // The last-action panel now comes AFTER all party
+    // information, as requested.
 
     std::cout
-        << "================================================================================\n";
+        << std::string(panelWidth, '-')
+        << "\n\n";
+
+
+    // ==================================================
+    // 9. LAST ACTION PANEL
+    // ==================================================
+    //
+    // lastActionMessage is assigned by attackMenu(),
+    // skillMenu(), and enemyTurn().
+    //
+    // This section only displays it.
+    //
+    // Long action messages automatically wrap, including
+    // messages describing damage, stress, defeats, and
+    // forced character movement.
+
+    std::string displayedAction = lastActionMessage;
+
+    if (displayedAction.empty())
+    {
+        displayedAction = "The battle has yet to begin.";
+    }
+
+    printMessagePanel(
+        "LAST ACTION",
+        displayedAction,
+        GOLD
+    );
+
+  
 }
+
 
 
 
