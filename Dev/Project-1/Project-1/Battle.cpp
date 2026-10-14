@@ -845,7 +845,7 @@ bool Battle::movePartyMember()
                   << movingCharacter->getName()
                   << " from position "
                   << fromPosition
-                  << ".\n\n";
+                  << ".\n";
 
         playerParty.printFormation();
 
@@ -1698,6 +1698,251 @@ void Battle::skillMenu(Character& character)
 }
 
 
+bool Battle::resolveStressReaction(Character& character)
+{
+    // ==================================================
+    // 1. CHECK THE STRESS THRESHOLD
+    // ==================================================
+    //
+    // A hero must have MORE than 100 stress to be affected.
+    // At 100 or below, their turn proceeds normally.
+
+    if (character.getStress() <= 100)
+    {
+        return false;
+    }
+
+
+    // ==================================================
+    // 2. ROLL FOR A STRESS REACTION
+    // ==================================================
+    //
+    // There is a 30% chance of a reaction each turn
+    // while the hero's stress remains above 100.
+    //
+    // A failed roll means the hero can act normally.
+
+    static std::random_device rd;
+    static std::mt19937 generator(rd());
+
+    std::uniform_int_distribution<int> chanceDistribution(
+        1,
+        100
+    );
+
+    if (chanceDistribution(generator) > 30)
+    {
+        return false;
+    }
+
+
+    // ==================================================
+    // 3. CHOOSE THE REACTION
+    // ==================================================
+    //
+    // Each of the three reactions currently has an equal
+    // chance of occurring once a reaction is triggered.
+    //
+    // 1 = Attack a random enemy
+    // 2 = Refuse the turn
+    // 3 = Attack a random ally
+
+    std::uniform_int_distribution<int> reactionDistribution(
+        1,
+        3
+    );
+
+    int reaction = reactionDistribution(generator);
+
+
+    // ==================================================
+    // REACTION 1: ATTACK A RANDOM ENEMY
+    // ==================================================
+    //
+    // The stressed hero loses control and attacks a
+    // randomly selected living enemy.
+    //
+    // Because this is an involuntary action, it uses
+    // Character::attack() directly rather than the
+    // hero's normal skill-selection and range checks.
+
+    if (reaction == 1)
+    {
+        Character* targets[4];
+        int targetCount = 0;
+
+        // Collect all living enemies.
+        for (int i = 1; i <= 4; i++)
+        {
+            Character* enemy = enemyParty.getMember(i);
+
+            if (enemy != nullptr && enemy->isAlive())
+            {
+                targets[targetCount] = enemy;
+                targetCount++;
+            }
+        }
+
+        // Safety check in case there are no living enemies.
+        if (targetCount == 0)
+        {
+            return false;
+        }
+
+        // Select a random enemy.
+        std::uniform_int_distribution<int> targetDistribution(
+            0,
+            targetCount - 1
+        );
+
+        Character* target =
+            targets[targetDistribution(generator)];
+
+        // Record the target's HP before attacking.
+        int hpBefore = target->getHP();
+
+        // Execute the involuntary attack.
+        character.Character::attack(*target);
+
+        // Calculate the actual HP lost.
+        int damageDealt = hpBefore - target->getHP();
+
+        // Store the result for the battle screen.
+        lastActionMessage =
+            character.getName() +
+            " loses control and attacks " +
+            target->getName() +
+            " for " +
+            std::to_string(damageDealt) +
+            " damage!";
+
+        narratorMessage =
+            "Desperation overwhelms discipline.";
+
+        // Record the enemy's defeat if applicable.
+        if (!target->isAlive())
+        {
+            lastActionMessage +=
+                " " +
+                target->getName() +
+                " has been defeated!";
+        }
+
+        return true;
+    }
+
+
+    // ==================================================
+    // REACTION 2: REFUSE TO ACT
+    // ==================================================
+    //
+    // The hero is overwhelmed and refuses to take
+    // their normal action this turn.
+    //
+    // No attack or skill is executed.
+
+    if (reaction == 2)
+    {
+        lastActionMessage =
+            character.getName() +
+            " is overwhelmed by stress and refuses to act!";
+
+        narratorMessage =
+            "Fear steals the will to act.";
+
+        return true;
+    }
+
+
+    // ==================================================
+    // REACTION 3: ATTACK A RANDOM ALLY
+    // ==================================================
+    //
+    // The stressed hero loses control and attacks
+    // another living member of the player party.
+    //
+    // The acting hero cannot target themselves.
+    // Normal position restrictions are ignored for
+    // this involuntary attack.
+
+    Character* allies[4];
+    int allyCount = 0;
+
+    for (int i = 1; i <= 4; i++)
+    {
+        Character* ally = playerParty.getMember(i);
+
+        if (ally != nullptr &&
+            ally->isAlive() &&
+            ally != &character)
+        {
+            allies[allyCount] = ally;
+            allyCount++;
+        }
+    }
+
+    // If there is nobody else alive, the hero cannot
+    // attack an ally, so the reaction becomes a refusal.
+    if (allyCount == 0)
+    {
+        lastActionMessage =
+            character.getName() +
+            " is overwhelmed by stress and cannot act!";
+
+        narratorMessage =
+            "The mind collapses beneath the strain.";
+
+        return true;
+    }
+
+    // Choose a random living ally.
+    std::uniform_int_distribution<int> allyDistribution(
+        0,
+        allyCount - 1
+    );
+
+    Character* target =
+        allies[allyDistribution(generator)];
+
+    // Record the ally's HP before the attack.
+    int hpBefore = target->getHP();
+
+    // Execute the involuntary friendly-fire attack.
+    character.Character::attack(*target);
+
+    int damageDealt = hpBefore - target->getHP();
+
+    // Being attacked by an ally also causes stress.
+    int stressIncrease = randomStress(1, 4);
+    target->addStress(stressIncrease);
+
+    // Save the result for the battle display.
+    lastActionMessage =
+        character.getName() +
+        " loses control and attacks ally " +
+        target->getName() +
+        " for " +
+        std::to_string(damageDealt) +
+        " damage! " +
+        target->getName() +
+        " gains " +
+        std::to_string(stressIncrease) +
+        " stress.";
+
+    narratorMessage =
+        "Fear turns companions against one another.";
+
+    if (!target->isAlive())
+    {
+        lastActionMessage +=
+            " " +
+            target->getName() +
+            " has been defeated!";
+    }
+
+    return true;
+}
+
 
 
 // --------------------------------------------------
@@ -1720,6 +1965,20 @@ void Battle::playerTurn(Character& character)
         character.addStress(stressIncrease);
         gainedStress = true;
     }
+
+    // Check whether stress forces an involuntary action.
+    // This happens once per turn, not on each menu redraw.
+    if (resolveStressReaction(character))
+    {
+        clearScreen();
+        printBattleState();
+
+        Input::waitForEnter();
+
+        // The reaction consumed the hero's turn.
+        return;
+    }
+
 
     while (true)
     {
