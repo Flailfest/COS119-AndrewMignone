@@ -12,9 +12,22 @@
 
 #include <iostream>
 #include <cstdlib>
+#include <string>
 
 namespace
 {
+    // ANSI colors work in Windows Terminal and most modern console terminals.
+    const char* const RESET = "\033[0m";
+    const char* const BOLD = "\033[1m";
+    const char* const DIM = "\033[38;5;240m";
+    const char* const WHITE = "\033[38;5;252m";
+    const char* const RED = "\033[38;5;160m";
+    const char* const GREEN = "\033[38;5;114m";
+    const char* const CYAN = "\033[38;5;80m";
+    const char* const GOLD = "\033[38;5;220m";
+    const char* const ORANGE = "\033[38;5;208m";
+    const int UI_WIDTH = 58;
+
     void clearFloorTestScreen()
     {
 #ifdef _WIN32
@@ -22,6 +35,19 @@ namespace
 #else
         std::system("clear");
 #endif
+    }
+
+    void printRule(char character = '=', const char* color = DIM)
+    {
+        std::cout << color << std::string(UI_WIDTH, character) << RESET << '\n';
+    }
+
+    void printHeader(const std::string& title, const char* color = GOLD)
+    {
+        printRule('=');
+        std::cout << color << BOLD << "  " << title << RESET << '\n';
+        printRule('=');
+        std::cout << '\n';
     }
 
     const char* getLightLevelName(LightLevel lightLevel)
@@ -37,6 +63,40 @@ namespace
         }
 
         return "Unknown";
+    }
+
+    const char* getLightLevelColor(LightLevel lightLevel)
+    {
+        switch (lightLevel)
+        {
+        case LightLevel::Bright:
+            return GREEN;
+        case LightLevel::Dim:
+            return GOLD;
+        case LightLevel::Off:
+            return RED;
+        }
+
+        return WHITE;
+    }
+
+    const char* getHealthColor(const Character& character)
+    {
+        const int maxHP = character.getMaxHP();
+        if (maxHP <= 0 || character.getHP() * 4 <= maxHP)
+        {
+            return RED;
+        }
+        if (character.getHP() * 2 <= maxHP)
+        {
+            return GOLD;
+        }
+        return GREEN;
+    }
+
+    const char* getStressColor(const Character& character)
+    {
+        return character.getStress() >= 100 ? RED : CYAN;
     }
 
     bool partyHasLivingHeroes(Party& party)
@@ -57,25 +117,24 @@ namespace
     {
         while (true)
         {
-            std::cout << "\nChoose a hero:\n";
+            std::cout << '\n' << CYAN << BOLD << "  CHOOSE A HERO" << RESET << '\n';
+            printRule('-');
 
             for (int position = 1; position <= 4; ++position)
             {
                 Character* character = party.getMember(position);
-
                 if (character != nullptr && character->isAlive())
                 {
-                    std::cout
-                        << position << ". "
-                        << character->getName()
-                        << " (" << character->getHP()
-                        << "/" << character->getMaxHP()
-                        << " HP, " << character->getStress()
-                        << " Stress)\n";
+                    std::cout << "  " << GOLD << position << RESET << ". "
+                              << WHITE << character->getName() << RESET
+                              << "  HP: " << getHealthColor(*character)
+                              << character->getHP() << "/" << character->getMaxHP()
+                              << RESET << "  Stress: " << getStressColor(*character)
+                              << character->getStress() << RESET << '\n';
                 }
             }
 
-            std::cout << "0. Back\n";
+            std::cout << "  " << DIM << "0. Back" << RESET << '\n';
             const int choice = Input::getInt("\nChoose a hero: ");
 
             if (choice == 0)
@@ -92,36 +151,40 @@ namespace
                 }
             }
 
-            std::cout << "Invalid target.\n";
+            std::cout << RED << "Invalid target.\n" << RESET;
         }
     }
 
     void printPartyStatus(Party& party)
     {
         clearFloorTestScreen();
-        std::cout << "========================================\n";
-        std::cout << "               PARTY STATUS\n";
-        std::cout << "========================================\n\n";
+        printHeader("PARTY STATUS", CYAN);
 
         for (int position = 1; position <= 4; ++position)
         {
             Character* character = party.getMember(position);
             if (character == nullptr)
             {
-                std::cout << "Position " << position << ": Empty\n\n";
+                std::cout << DIM << "  [" << position << "] Empty formation slot\n" << RESET;
+                printRule('-', DIM);
                 continue;
             }
 
-            std::cout << position << ". " << character->getName() << '\n';
-            std::cout << "   Health: " << character->getHP()
-                      << "/" << character->getMaxHP() << " HP\n";
-            std::cout << "   Stress: " << character->getStress()
-                      << "/200\n";
-            std::cout << "   Status: "
+            std::cout << "  " << GOLD << BOLD << '[' << position << "] "
+                      << character->getName() << RESET << '\n';
+            std::cout << "      Health : " << getHealthColor(*character)
+                      << character->getHP() << '/' << character->getMaxHP()
+                      << " HP" << RESET << '\n';
+            std::cout << "      Stress : " << getStressColor(*character)
+                      << character->getStress() << "/200" << RESET << '\n';
+            std::cout << "      Status : "
+                      << (character->isAlive() ? GREEN : RED)
                       << (character->isAlive() ? "Alive" : "Fallen")
-                      << "\n\n";
+                      << RESET << '\n';
+            printRule('-', DIM);
         }
 
+        std::cout << '\n';
         Input::waitForEnter();
     }
 
@@ -135,18 +198,28 @@ namespace
         while (true)
         {
             clearFloorTestScreen();
-            std::cout << "========================================\n";
-            std::cout << "                 INVENTORY\n";
-            std::cout << "========================================\n\n";
+            printHeader("EXPEDITION INVENTORY", GOLD);
 
-            inventory.printInventory();
-            std::cout << "Gold: " << gold << '\n';
-            std::cout << "Torchlight: " << getLightLevelName(lightLevel) << "\n\n";
+            std::cout << CYAN << BOLD << "  SUPPLIES" << RESET << '\n';
+            printRule('-', DIM);
+            std::cout << "  Food       : " << GREEN << inventory.getFood() << RESET << '\n';
+            std::cout << "  Torches    : " << GOLD << inventory.getTorches() << RESET << '\n';
+            std::cout << "  Medicine   : " << CYAN << inventory.getMedicine() << RESET << '\n';
+            std::cout << "  Gold       : " << GOLD << BOLD << gold << RESET << '\n';
+            std::cout << "  Torchlight : " << getLightLevelColor(lightLevel)
+                      << getLightLevelName(lightLevel) << RESET << "\n\n";
 
-            std::cout << "1. Use Food       (heal 2 HP, -5 stress)\n";
-            std::cout << "2. Use Torch      (restore one light level)\n";
-            std::cout << "3. Use Medicine   (heal 6 HP, +1 stress)\n";
-            std::cout << "0. Back\n";
+            printRule('=');
+            std::cout << CYAN << BOLD << "  USE AN ITEM" << RESET << '\n';
+            printRule('-', DIM);
+            std::cout << "  " << GOLD << "1" << RESET << ". Use Food       "
+                      << DIM << "(heal 2 HP, -5 stress)" << RESET << '\n';
+            std::cout << "  " << GOLD << "2" << RESET << ". Use Torch      "
+                      << DIM << "(restore one light level)" << RESET << '\n';
+            std::cout << "  " << GOLD << "3" << RESET << ". Use Medicine   "
+                      << DIM << "(heal 6 HP, +1 stress)" << RESET << '\n';
+            std::cout << "  " << DIM << "0. Back" << RESET << '\n';
+            printRule('=');
 
             const int choice = Input::getInt("\nChoose an option: ");
             if (choice == 0)
@@ -158,7 +231,7 @@ namespace
             {
                 if (inventory.getFood() <= 0)
                 {
-                    std::cout << "\nYou have no food.\n";
+                    std::cout << RED << "\nYou have no food.\n" << RESET;
                     Input::waitForEnter();
                     continue;
                 }
@@ -172,8 +245,8 @@ namespace
                 inventory.useFood();
                 target->heal(2);
                 target->reduceStress(5);
-                std::cout << "\n" << target->getName()
-                          << " eats food, recovers 2 HP, and loses 5 stress.\n";
+                std::cout << GREEN << "\n" << target->getName()
+                          << " eats food, recovers 2 HP, and loses 5 stress.\n" << RESET;
                 Input::waitForEnter();
                 continue;
             }
@@ -182,14 +255,14 @@ namespace
             {
                 if (inventory.getTorches() <= 0)
                 {
-                    std::cout << "\nYou have no torches.\n";
+                    std::cout << RED << "\nYou have no torches.\n" << RESET;
                     Input::waitForEnter();
                     continue;
                 }
 
                 if (lightLevel == LightLevel::Bright)
                 {
-                    std::cout << "\nThe torchlight is already bright.\n";
+                    std::cout << GREEN << "\nThe torchlight is already bright.\n" << RESET;
                     Input::waitForEnter();
                     continue;
                 }
@@ -205,7 +278,8 @@ namespace
                 }
 
                 std::cout << "\nYou use a torch. Torchlight is now "
-                          << getLightLevelName(lightLevel) << ".\n";
+                          << getLightLevelColor(lightLevel) << getLightLevelName(lightLevel)
+                          << RESET << ".\n";
                 Input::waitForEnter();
                 continue;
             }
@@ -214,7 +288,7 @@ namespace
             {
                 if (inventory.getMedicine() <= 0)
                 {
-                    std::cout << "\nYou have no medicine.\n";
+                    std::cout << RED << "\nYou have no medicine.\n" << RESET;
                     Input::waitForEnter();
                     continue;
                 }
@@ -228,13 +302,13 @@ namespace
                 inventory.useMedicine();
                 target->heal(6);
                 target->addStress(1);
-                std::cout << "\n" << target->getName()
-                          << " uses medicine, recovers 6 HP, and gains 1 stress.\n";
+                std::cout << GREEN << "\n" << target->getName()
+                          << " uses medicine, recovers 6 HP, and gains 1 stress.\n" << RESET;
                 Input::waitForEnter();
                 continue;
             }
 
-            std::cout << "\nInvalid choice.\n";
+            std::cout << RED << "\nInvalid choice.\n" << RESET;
             Input::waitForEnter();
         }
     }
@@ -243,7 +317,8 @@ namespace
     {
         clearFloorTestScreen();
         floor.printMap();
-        std::cout << "\nCurrent torchlight: " << getLightLevelName(lightLevel) << "\n";
+        std::cout << "\nCurrent torchlight: " << getLightLevelColor(lightLevel)
+                  << BOLD << getLightLevelName(lightLevel) << RESET << "\n\n";
         Input::waitForEnter();
     }
 }
@@ -271,10 +346,8 @@ void FloorTest::run()
         if (!partyHasLivingHeroes(playerParty))
         {
             clearFloorTestScreen();
-            std::cout << "========================================\n";
-            std::cout << "           EXPEDITION FAILED\n";
-            std::cout << "========================================\n\n";
-            std::cout << "Every hero has fallen in the cellar.\n";
+            printHeader("EXPEDITION FAILED", RED);
+            std::cout << "  Every hero has fallen in the cellar.\n\n";
             Input::waitForEnter();
             return;
         }
@@ -282,51 +355,58 @@ void FloorTest::run()
         if (floor.isAtExit())
         {
             clearFloorTestScreen();
-            std::cout << "========================================\n";
-            std::cout << "             FLOOR CLEARED\n";
-            std::cout << "========================================\n\n";
-            std::cout << "The party found the stairs leading deeper into the cellar.\n";
-            std::cout << "Gold collected: " << gold << '\n';
-            std::cout << "Rooms on this floor: " << floor.getRoomCount() << '\n';
+            printHeader("FLOOR CLEARED", GREEN);
+            std::cout << "  The party found the stairs leading deeper into the cellar.\n\n";
+            std::cout << "  Gold collected     : " << GOLD << BOLD << gold << RESET << '\n';
+            std::cout << "  Rooms on this floor: " << CYAN << floor.getRoomCount() << RESET << "\n\n";
+            printRule('=');
             Input::waitForEnter();
             return;
         }
 
         clearFloorTestScreen();
-        std::cout << "========================================\n";
-        std::cout << "         VISUALLY OBSCURED CELLAR\n";
-        std::cout << "             FLOOR EXPEDITION\n";
-        std::cout << "========================================\n\n";
+        printRule('=');
+        std::cout << RED << BOLD << "  VISUALLY OBSCURED CELLAR" << RESET << '\n';
+        std::cout << GOLD << BOLD << "  FLOOR EXPEDITION" << RESET << '\n';
+        printRule('=');
+        std::cout << '\n';
 
         if (floor.getCurrentRoomId() == 0)
         {
-            std::cout << "Location: Entrance\n";
+            std::cout << "  Location   : " << GREEN << BOLD << "Entrance" << RESET << '\n';
         }
         else
         {
-            std::cout << "Location: Room " << floor.getCurrentRoomId() << '\n';
+            std::cout << "  Location   : " << CYAN << BOLD << "Room "
+                      << floor.getCurrentRoomId() << RESET << '\n';
         }
 
-        std::cout << "Torchlight: " << getLightLevelName(lightLevel) << '\n';
-        std::cout << "Gold: " << gold << "\n\n";
+        std::cout << "  Torchlight : " << getLightLevelColor(lightLevel)
+                  << BOLD << getLightLevelName(lightLevel) << RESET << '\n';
+        std::cout << "  Gold       : " << GOLD << BOLD << gold << RESET << "\n\n";
 
-        std::cout << "1. Move through a hallway\n";
-        std::cout << "2. Inventory\n";
-        std::cout << "3. Party Status\n";
-        std::cout << "4. Floor Map\n";
-        std::cout << "5. Leave Expedition\n";
+        printRule('-');
+        std::cout << CYAN << BOLD << "  EXPEDITION OPTIONS" << RESET << '\n';
+        printRule('-');
+        std::cout << "  " << GOLD << "1" << RESET << ". Move through a hallway\n";
+        std::cout << "  " << GOLD << "2" << RESET << ". Inventory\n";
+        std::cout << "  " << GOLD << "3" << RESET << ". Party Status\n";
+        std::cout << "  " << GOLD << "4" << RESET << ". Floor Map\n";
+        std::cout << "  " << RED << "5" << RESET << ". Leave Expedition\n";
+        printRule('=');
 
         const int choice = Input::getInt("\nChoose an option: ");
 
         if (choice == 1)
         {
             clearFloorTestScreen();
-            std::cout << "========================================\n";
-            std::cout << "             HALLWAY\n";
-            std::cout << "========================================\n\n";
+            printHeader("HALLWAY", CYAN);
             floor.printRoomChoices();
-            std::cout << "\nMoving through a hallway drains torchlight by one level.\n";
-            std::cout << "Enter -1 to stay where you are.\n";
+            std::cout << '\n';
+            printRule('-');
+            std::cout << DIM << "  Moving through a hallway drains torchlight by one level.\n"
+                      << "  Enter -1 to stay where you are." << RESET << "\n";
+            printRule('-');
 
             const int destination = Input::getInt("\nChoose destination room ID: ");
             if (destination == -1)
@@ -336,13 +416,14 @@ void FloorTest::run()
 
             if (!floor.moveToRoom(destination, lightLevel))
             {
-                std::cout << "\nThat room is not connected to your current location.\n";
+                std::cout << RED << "\nThat room is not connected to your current location.\n" << RESET;
                 Input::waitForEnter();
                 continue;
             }
 
             std::cout << "\nYou travel through the hallway. Torchlight is now "
-                      << getLightLevelName(lightLevel) << ".\n";
+                      << getLightLevelColor(lightLevel) << BOLD
+                      << getLightLevelName(lightLevel) << RESET << ".\n";
 
             if (!floor.hasEntered(floor.getCurrentRoomId()))
             {
@@ -350,7 +431,7 @@ void FloorTest::run()
             }
             else
             {
-                std::cout << "You return to a room you have already explored.\n";
+                std::cout << CYAN << "You return to a room you have already explored.\n" << RESET;
                 Input::waitForEnter();
             }
 
@@ -380,7 +461,7 @@ void FloorTest::run()
             return;
         }
 
-        std::cout << "\nInvalid choice.\n";
+        std::cout << RED << "\nInvalid choice.\n" << RESET;
         Input::waitForEnter();
     }
 }

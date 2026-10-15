@@ -3,19 +3,116 @@
 #include "Input.h"
 #include "Inventory.h"
 
+#include <cstdlib>
 #include <iostream>
 #include <random>
+#include <string>
 
 namespace
 {
-void clearRoomScreen()
-{
+    // ANSI colors match the Floor Test screens. Windows Terminal supports these
+    // escape sequences, as do most modern terminal applications.
+    const char* const RESET  = "\033[0m";
+    const char* const BOLD   = "\033[1m";
+    const char* const DIM    = "\033[38;5;240m";
+    const char* const WHITE  = "\033[38;5;252m";
+    const char* const RED    = "\033[38;5;160m";
+    const char* const GREEN  = "\033[38;5;114m";
+    const char* const CYAN   = "\033[38;5;80m";
+    const char* const GOLD   = "\033[38;5;220m";
+    const char* const ORANGE = "\033[38;5;208m";
+    const char* const BLUE   = "\033[38;5;75m";
+    const int UI_WIDTH = 58;
+
+    void clearRoomScreen()
+    {
 #ifdef _WIN32
-    system("cls");
+        std::system("cls");
 #else
-    system("clear");
+        std::system("clear");
 #endif
-}
+    }
+
+    void printRule(char character = '=', const char* color = DIM)
+    {
+        std::cout << color << std::string(UI_WIDTH, character) << RESET << '\n';
+    }
+
+    void printHeader(const std::string& title, const char* color = GOLD)
+    {
+        printRule('=', color);
+        std::cout << color << BOLD << "  " << title << RESET << '\n';
+        printRule('=', color);
+    }
+
+    const char* roomTypeName(RoomType type)
+    {
+        switch (type)
+        {
+        case RoomType::Empty:    return "Empty Room";
+        case RoomType::Trap:     return "Trap";
+        case RoomType::Chest:    return "Treasure Chest";
+        case RoomType::Fountain: return "Fountain";
+        case RoomType::Entrance: return "Entrance";
+        case RoomType::Exit:     return "Floor Exit";
+        }
+        return "Unknown Room";
+    }
+
+    const char* roomTypeColor(RoomType type)
+    {
+        switch (type)
+        {
+        case RoomType::Empty:    return CYAN;
+        case RoomType::Trap:     return RED;
+        case RoomType::Chest:    return GOLD;
+        case RoomType::Fountain: return GREEN;
+        case RoomType::Entrance: return BLUE;
+        case RoomType::Exit:     return ORANGE;
+        }
+        return WHITE;
+    }
+
+    const char* lightLevelName(LightLevel lightLevel)
+    {
+        switch (lightLevel)
+        {
+        case LightLevel::Bright: return "Bright";
+        case LightLevel::Dim:    return "Dim";
+        case LightLevel::Off:    return "Off";
+        }
+        return "Unknown";
+    }
+
+    const char* lightLevelColor(LightLevel lightLevel)
+    {
+        switch (lightLevel)
+        {
+        case LightLevel::Bright: return GREEN;
+        case LightLevel::Dim:    return GOLD;
+        case LightLevel::Off:    return RED;
+        }
+        return WHITE;
+    }
+
+    const char* healthColor(const Character& character)
+    {
+        const int maxHP = character.getMaxHP();
+        if (maxHP <= 0 || character.getHP() * 4 <= maxHP)
+        {
+            return RED;
+        }
+        if (character.getHP() * 2 <= maxHP)
+        {
+            return GOLD;
+        }
+        return GREEN;
+    }
+
+    const char* stressColor(const Character& character)
+    {
+        return character.getStress() >= 100 ? RED : CYAN;
+    }
 }
 
 Room::Room()
@@ -35,21 +132,12 @@ RoomType Room::generateRandomRoom()
 
     std::uniform_int_distribution<int> distribution(1, 4);
 
-    int roomChoice = distribution(generator);
-
-    switch (roomChoice)
+    switch (distribution(generator))
     {
-    case 1:
-        return RoomType::Empty;
-
-    case 2:
-        return RoomType::Trap;
-
-    case 3:
-        return RoomType::Chest;
-
-    case 4:
-        return RoomType::Fountain;
+    case 1: return RoomType::Empty;
+    case 2: return RoomType::Trap;
+    case 3: return RoomType::Chest;
+    case 4: return RoomType::Fountain;
     }
 
     return RoomType::Empty;
@@ -59,10 +147,7 @@ bool Room::battleOccurs() const
 {
     static std::random_device rd;
     static std::mt19937 generator(rd());
-
-    // 30% chance of battle
     std::uniform_int_distribution<int> distribution(1, 100);
-
     return distribution(generator) <= 30;
 }
 
@@ -84,106 +169,82 @@ void Room::enterInternal(
 )
 {
     clearRoomScreen();
+    printHeader("ROOM ENCOUNTER", GOLD);
 
-    std::cout << "====================================\n";
-    std::cout << "           ENTERING ROOM\n";
-    std::cout << "====================================\n\n";
+    std::cout << "  Room type  : " << roomTypeColor(type) << BOLD
+              << roomTypeName(type) << RESET << '\n';
+    std::cout << "  Torchlight : " << lightLevelColor(lightLevel) << BOLD
+              << lightLevelName(lightLevel) << RESET << '\n';
 
-    switch (type)
+    if (type == RoomType::Exit)
     {
-    case RoomType::Empty:
-        std::cout << "Room Type: Empty\n";
-        break;
-
-    case RoomType::Trap:
-        std::cout << "Room Type: Trap\n";
-        break;
-
-    case RoomType::Chest:
-        std::cout << "Room Type: Chest\n";
-        break;
-
-    case RoomType::Fountain:
-        std::cout << "Room Type: Fountain\n";
-        break;
-
-    case RoomType::Entrance:
-        std::cout << "Room Type: Entrance\n";
-        break;
-
-    case RoomType::Exit:
-        std::cout << "Room Type: Floor Exit\n";
-        std::cout << "The stairs lead deeper into the cellar.\n";
+        printRule('-');
+        std::cout << GREEN << BOLD
+                  << "  The stairs lead deeper into the cellar.\n"
+                  << RESET;
+        printRule('=');
         Input::waitForEnter();
         return;
     }
 
-    std::cout << "\n";
-
     int stressAmount = 0;
-
     switch (lightLevel)
     {
-    case LightLevel::Bright:
-        stressAmount = 2;
-        std::cout << "Torchlight: Bright\n";
-        break;
-
-    case LightLevel::Dim:
-        stressAmount = 5;
-        std::cout << "Torchlight: Dim\n";
-        break;
-
-    case LightLevel::Off:
-        stressAmount = 10;
-        std::cout << "Torchlight: Off\n";
-        break;
+    case LightLevel::Bright: stressAmount = 2; break;
+    case LightLevel::Dim:    stressAmount = 5; break;
+    case LightLevel::Off:    stressAmount = 10; break;
     }
 
-    std::cout
-        << "Each hero gains "
-        << stressAmount
-        << " stress.\n\n";
+    std::cout << "  Light effect: each living hero gains "
+              << lightLevelColor(lightLevel) << BOLD << '+' << stressAmount
+              << " stress" << RESET << "\n";
 
-    for (int i = 1; i <= 4; i++)
+    for (int i = 1; i <= 4; ++i)
     {
         Character* character = party.getMember(i);
-
-        if (character != nullptr &&
-            character->isAlive())
+        if (character != nullptr && character->isAlive())
         {
             character->addStress(stressAmount);
         }
     }
 
+    printRule('-');
+    std::cout << CYAN << BOLD << "  ROOM EVENT" << RESET << '\n';
+    printRule('-');
     triggerEvent(party, inventory, gold);
 
-    std::cout << "\n";
-    std::cout << "====================================\n";
-    std::cout << "          PARTY STRESS\n";
-    std::cout << "====================================\n";
+    printRule('-');
+    std::cout << GOLD << BOLD << "  PARTY STATUS" << RESET << '\n';
+    printRule('-');
 
-    for (int i = 1; i <= 4; i++)
+    for (int i = 1; i <= 4; ++i)
     {
         Character* character = party.getMember(i);
-
-        if (character != nullptr)
+        if (character == nullptr)
         {
-            std::cout
-                << character->getName()
-                << ": "
-                << character->getStress()
-                << "/200 Stress\n";
+            continue;
         }
+
+        std::cout << "  [" << i << "] " << WHITE << character->getName() << RESET
+                  << "  HP " << healthColor(*character) << character->getHP()
+                  << '/' << character->getMaxHP() << RESET
+                  << "  Stress " << stressColor(*character)
+                  << character->getStress() << "/200" << RESET;
+
+        if (!character->isAlive())
+        {
+            std::cout << ' ' << RED << BOLD << "FALLEN" << RESET;
+        }
+        std::cout << '\n';
     }
 
-    std::cout << "\n";
+    printRule('=');
 
     if (type != RoomType::Entrance && type != RoomType::Exit && battleOccurs())
     {
-        std::cout << "The room is disturbed...\n";
-        std::cout << "An enemy party appears!\n";
-
+        std::cout << RED << BOLD
+                  << "  The room stirs... an enemy party appears!\n"
+                  << RESET;
         Input::waitForEnter();
 
         Battle battle(party);
@@ -191,8 +252,7 @@ void Room::enterInternal(
     }
     else
     {
-        std::cout << "The room remains quiet.\n";
-
+        std::cout << GREEN << "  The room remains quiet.\n" << RESET;
         Input::waitForEnter();
     }
 }
@@ -204,19 +264,15 @@ void Room::triggerEvent(Party& party, Inventory* inventory, int* gold)
     case RoomType::Empty:
         triggerEmpty();
         break;
-
     case RoomType::Trap:
         triggerTrap(party);
         break;
-
     case RoomType::Chest:
         triggerChest(party, inventory, gold);
         break;
-
     case RoomType::Fountain:
         triggerFountain(party);
         break;
-
     case RoomType::Entrance:
     case RoomType::Exit:
         break;
@@ -225,38 +281,34 @@ void Room::triggerEvent(Party& party, Inventory* inventory, int* gold)
 
 void Room::triggerEmpty()
 {
-    std::cout << "Nothing of interest is found.\n";
+    std::cout << CYAN << "  Nothing of interest is found.\n" << RESET;
 }
 
 void Room::triggerTrap(Party& party)
 {
-    std::cout << "A trap has been triggered!\n\n";
+    std::cout << RED << BOLD << "  A trap has been triggered!\n" << RESET;
 
-    // Additional 10 stress to every living hero.
-    for (int i = 1; i <= 4; i++)
+    // Preserve the existing trap effects: +10 stress to the living party,
+    // followed by random damage (2-5) and another +5 stress to one hero.
+    for (int i = 1; i <= 4; ++i)
     {
         Character* character = party.getMember(i);
-
         if (character != nullptr && character->isAlive())
         {
             character->addStress(10);
         }
     }
 
-    std::cout << "The entire party gains 10 additional stress.\n\n";
+    std::cout << "  The party gains " << RED << "+10 stress each" << RESET << ".\n";
 
-    // Build a list of living heroes.
     Character* targets[4];
     int targetCount = 0;
-
-    for (int i = 1; i <= 4; i++)
+    for (int i = 1; i <= 4; ++i)
     {
         Character* character = party.getMember(i);
-
         if (character != nullptr && character->isAlive())
         {
-            targets[targetCount] = character;
-            targetCount++;
+            targets[targetCount++] = character;
         }
     }
 
@@ -267,45 +319,27 @@ void Room::triggerTrap(Party& party)
 
     static std::random_device rd;
     static std::mt19937 generator(rd());
+    std::uniform_int_distribution<int> targetDistribution(0, targetCount - 1);
+    std::uniform_int_distribution<int> damageDistribution(2, 5);
 
-    std::uniform_int_distribution<int> targetDistribution(
-        0,
-        targetCount - 1
-    );
-
-    Character* target =
-        targets[targetDistribution(generator)];
-
-    // Random damage from 2-5.
-    std::uniform_int_distribution<int> damageDistribution(
-        2,
-        5
-    );
-
-    int damage = damageDistribution(generator);
-
+    Character* target = targets[targetDistribution(generator)];
+    const int damage = damageDistribution(generator);
     target->takeDamage(damage);
     target->addStress(5);
 
-    std::cout
-        << target->getName()
-        << " takes "
-        << damage
-        << " damage.\n";
-
-    std::cout
-        << target->getName()
-        << " gains 5 additional stress.\n";
+    std::cout << "  " << target->getName() << " takes "
+              << RED << BOLD << damage << " damage" << RESET
+              << " and gains " << RED << "+5 stress" << RESET << ".\n";
 }
 
 void Room::triggerChest(Party& party, Inventory* inventory, int* gold)
 {
     (void)party;
-    std::cout << "A chest has been discovered!\n";
+    std::cout << GOLD << BOLD << "  A treasure chest has been discovered!\n" << RESET;
 
     if (gold == nullptr)
     {
-        std::cout << "The chest is locked away from expedition supplies.\n";
+        std::cout << DIM << "  The chest is not connected to expedition supplies.\n" << RESET;
         return;
     }
 
@@ -315,37 +349,31 @@ void Room::triggerChest(Party& party, Inventory* inventory, int* gold)
     const int reward = rewardDistribution(generator);
 
     *gold += reward;
-    std::cout << "You open the chest and find " << reward << " gold.\n";
-    std::cout << "Your gold pouch now contains " << *gold << " gold.\n";
+    std::cout << "  You find " << GOLD << BOLD << reward << " gold" << RESET << ".\n";
+    std::cout << "  Gold pouch: " << GOLD << BOLD << *gold << RESET << " gold.\n";
     (void)inventory;
 }
 
 void Room::triggerFountain(Party& party)
 {
-    std::cout << "A fountain has been discovered!\n\n";
+    std::cout << GREEN << BOLD << "  An old fountain glimmers in the gloom.\n" << RESET;
 
-    // Reduce stress for every living party member.
-    for (int i = 1; i <= 4; i++)
+    for (int i = 1; i <= 4; ++i)
     {
         Character* character = party.getMember(i);
-
         if (character != nullptr && character->isAlive())
         {
             character->reduceStress(10);
         }
     }
 
-    std::cout << "The party's stress is reduced by 10.\n\n";
+    std::cout << "  Living heroes lose " << GREEN << "10 stress" << RESET << ".\n";
 
-    // Check if anyone needs healing.
     bool hasInjuredCharacter = false;
-
-    for (int i = 1; i <= 4; i++)
+    for (int i = 1; i <= 4; ++i)
     {
         Character* character = party.getMember(i);
-
-        if (character != nullptr &&
-            character->isAlive() &&
+        if (character != nullptr && character->isAlive() &&
             character->getHP() < character->getMaxHP())
         {
             hasInjuredCharacter = true;
@@ -353,72 +381,52 @@ void Room::triggerFountain(Party& party)
         }
     }
 
-    // Nobody needs healing.
     if (!hasInjuredCharacter)
     {
-        std::cout
-            << "The entire party is at full health.\n";
-
+        std::cout << GREEN << "  Everyone is at full health.\n" << RESET;
         return;
     }
 
-    // Display available party members.
-    std::cout << "Choose a hero to heal:\n";
+    printRule('-');
+    std::cout << CYAN << BOLD << "  FOUNTAIN HEALING" << RESET << '\n';
+    std::cout << DIM << "  Choose an injured hero to restore 3 HP.\n" << RESET;
 
-    for (int i = 1; i <= 4; i++)
+    for (int i = 1; i <= 4; ++i)
     {
         Character* character = party.getMember(i);
-
-        if (character != nullptr &&
-            character->isAlive())
+        if (character != nullptr && character->isAlive())
         {
-            std::cout
-                << i << ". "
-                << character->getName()
-                << " ("
-                << character->getHP()
-                << "/"
-                << character->getMaxHP()
-                << " HP)\n";
+            std::cout << "  " << GOLD << '[' << i << "] " << RESET
+                      << character->getName() << "  HP: "
+                      << healthColor(*character) << character->getHP()
+                      << '/' << character->getMaxHP() << RESET << '\n';
         }
     }
+    std::cout << "  " << DIM << "[0] Back" << RESET << '\n';
+    printRule('-');
 
-    std::cout << "0. Back\n";
-
-    int choice = Input::getInt(
-        "\nChoose a hero: "
-    );
-
+    int choice = Input::getInt("  Choose a hero: ");
     if (choice == 0)
     {
         return;
     }
 
     Character* target = party.getMember(choice);
-
     while (target == nullptr ||
-        !target->isAlive() ||
-        target->getHP() >= target->getMaxHP())
+           !target->isAlive() ||
+           target->getHP() >= target->getMaxHP())
     {
-        std::cout << "Invalid target.\n";
-
-        choice = Input::getInt(
-            "Choose a hero: "
-        );
-
+        std::cout << RED << "  Invalid target. Select an injured, living hero.\n" << RESET;
+        choice = Input::getInt("  Choose a hero (0 to cancel): ");
         if (choice == 0)
         {
             return;
         }
-
         target = party.getMember(choice);
     }
 
     target->heal(3);
-
-    std::cout
-        << target->getName()
-        << " is healed for 3 HP.\n";
+    std::cout << GREEN << "  " << target->getName() << " is healed for 3 HP.\n" << RESET;
 }
 
 RoomType Room::getType() const

@@ -4,6 +4,7 @@
 #include "Input.h"
 
 #include <iostream>
+#include <random>
 #include <string>
 
 bool Battle::movePartyMember()
@@ -329,7 +330,16 @@ void Battle::skillMenu(Character& character)
         std::cout << "====================================\n";
         std::cout << character.getName() << " Skills\n";
         std::cout << "====================================\n";
-        character.printSkills();
+
+        if (character.getName() == "Highwayman")
+        {
+            std::cout << "1. Pistol Shot\n";
+            std::cout << "2. Grapeshot (2-5 damage to enemy positions 1-3)\n";
+        }
+        else
+        {
+            character.printSkills();
+        }
 
         std::cout << "0. Back\n";
         int choice = Input::getInt(
@@ -370,6 +380,62 @@ void Battle::skillMenu(Character& character)
         TargetType targetType =
             character.getSkillTargetType(choice);
 
+        // Grapeshot is a multi-target skill. It hits every living
+        // enemy in positions 1-3, rolling 2-5 damage for each target.
+        // Keep it here because the current Character skill interface
+        // accepts one target at a time.
+        if (character.getName() == "Highwayman" && choice == 2)
+        {
+            Character* targets[3] = { nullptr, nullptr, nullptr };
+            int targetCount = 0;
+
+            for (int position = 1; position <= 3; ++position)
+            {
+                Character* enemy = enemyParty.getMember(position);
+                if (enemy != nullptr && enemy->isAlive())
+                {
+                    targets[targetCount++] = enemy;
+                }
+            }
+
+            if (targetCount == 0)
+            {
+                std::cout << "No living enemies in positions 1-3 to hit with Grapeshot.\n";
+                Input::waitForEnter();
+                continue;
+            }
+
+            static std::random_device rd;
+            static std::mt19937 generator(rd());
+            std::uniform_int_distribution<int> damageDistribution(2, 5);
+
+            lastActionMessage = "Highwayman uses Grapeshot: ";
+
+            for (int i = 0; i < targetCount; ++i)
+            {
+                Character* enemy = targets[i];
+                int hpBefore = enemy->getHP();
+                int rolledDamage = damageDistribution(generator);
+                enemy->takeDamage(rolledDamage);
+                int damageDealt = hpBefore - enemy->getHP();
+
+                if (i > 0)
+                {
+                    lastActionMessage += " | ";
+                }
+
+                lastActionMessage += enemy->getName() + " takes " +
+                    std::to_string(damageDealt) + " damage";
+
+                if (!enemy->isAlive())
+                {
+                    lastActionMessage += " (defeated)";
+                }
+            }
+
+            return;
+        }
+
         Character* target = nullptr;
         if (targetType == TargetType::Enemy)
         {
@@ -409,7 +475,7 @@ void Battle::skillMenu(Character& character)
             }
             else if (choice == 2)
             {
-                skillName = "Melee Attack";
+                skillName = "Grapeshot";
             }
         }
         else if (character.getName() == "Plague Doctor")

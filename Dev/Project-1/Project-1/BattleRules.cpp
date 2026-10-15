@@ -60,17 +60,20 @@ namespace BattleRules
                 rules = { 1, 3, 2, 4 };
                 return true;
             }
-            if (skillNumber == 2)
+            if (skillNumber == 2) // Grapeshot
             {
-                rules = { 1, 2, 1, 2 };
+                // Usable from Highwayman positions 1-2; hits enemy positions 1-3.
+                rules = { 1, 2, 1, 3 };
                 return true;
             }
         }
         else if (name == "Plague Doctor")
         {
-            if (skillNumber == 1)
+            if (skillNumber == 1) // Plague Grenade
             {
-                rules = { 1, 2, 3, 4 };
+                // The Plague Doctor must be in the back two slots (3-4).
+                // Plague Grenade targets the enemy back two slots (3-4).
+                rules = { 3, 4, 3, 4 };
                 return true;
             }
             if (skillNumber == 2)

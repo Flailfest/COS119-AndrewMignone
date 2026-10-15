@@ -235,11 +235,22 @@ void Floor::enterCurrentRoom(
 
 void Floor::printMap() const
 {
+    const char* RESET = "\033[0m";
+    const char* BOLD = "\033[1m";
+    const char* DIM = "\033[38;5;240m";
+    const char* RED = "\033[38;5;160m";
+    const char* GREEN = "\033[38;5;114m";
+    const char* CYAN = "\033[38;5;80m";
+    const char* GOLD = "\033[38;5;220m";
+    const char* BLUE = "\033[38;5;75m";
+
     const int rowCount = 5;
     const int canvasWidth = FLOOR_WIDTH * 7;
     std::vector<std::string> canvas(rowCount, std::string(canvasWidth, ' '));
     bool hasNodeOnRow[3] = { false, false, false };
 
+    // Map tokens are kept as exactly four visible characters so the hallway
+    // connectors remain aligned even when ANSI color is added while printing.
     for (std::size_t i = 0; i < rooms.size(); ++i)
     {
         const FloorRoom& room = rooms[i];
@@ -308,9 +319,9 @@ void Floor::printMap() const
         }
     }
 
-    std::cout << "========================================\n";
-    std::cout << "                 FLOOR MAP\n";
-    std::cout << "========================================\n\n";
+    std::cout << GOLD << BOLD << std::string(52, '=') << RESET << '\n';
+    std::cout << GOLD << BOLD << "  FLOOR MAP" << RESET << '\n';
+    std::cout << DIM << std::string(52, '-') << RESET << "\n\n";
 
     for (int y = 0; y < 3; ++y)
     {
@@ -319,46 +330,129 @@ void Floor::printMap() const
             continue;
         }
 
-        std::cout << canvas[y * 2] << '\n';
+        // Print each cell with color applied at output time. ANSI escape codes
+        // therefore do not affect the map's character spacing or connectors.
+        const int mapRow = y * 2;
+        for (int column = 0; column < canvasWidth; ++column)
+        {
+            const char cell = canvas[mapRow][column];
+            if (cell == ' ')
+            {
+                std::cout << ' ';
+                continue;
+            }
+
+            const FloorRoom* labelRoom = nullptr;
+            for (std::size_t i = 0; i < rooms.size(); ++i)
+            {
+                const FloorRoom& room = rooms[i];
+                if (room.y == y && column >= room.x * 7 && column < room.x * 7 + 4)
+                {
+                    labelRoom = &room;
+                    break;
+                }
+            }
+
+            if (labelRoom == nullptr)
+            {
+                std::cout << DIM << cell << RESET;
+            }
+            else if (labelRoom->id == currentRoomId)
+            {
+                std::cout << CYAN << BOLD << cell << RESET;
+            }
+            else if (labelRoom->id == entranceRoomId)
+            {
+                std::cout << BLUE << BOLD << cell << RESET;
+            }
+            else if (labelRoom->id == exitRoomId)
+            {
+                std::cout << GOLD << BOLD << cell << RESET;
+            }
+            else if (labelRoom->visited)
+            {
+                std::cout << GREEN << cell << RESET;
+            }
+            else
+            {
+                std::cout << RED << cell << RESET;
+            }
+        }
+        std::cout << '\n';
 
         if (y < 2 && hasNodeOnRow[y + 1])
         {
-            std::cout << canvas[y * 2 + 1] << '\n';
+            const int connectorRow = y * 2 + 1;
+            for (int column = 0; column < canvasWidth; ++column)
+            {
+                const char cell = canvas[connectorRow][column];
+                if (cell == ' ')
+                {
+                    std::cout << ' ';
+                }
+                else
+                {
+                    std::cout << DIM << cell << RESET;
+                }
+            }
+            std::cout << '\n';
         }
     }
 
-    std::cout << "\nLegend: @IN Current entrance  <@ > You  <IN> Entrance  <EX> Exit\n";
-    std::cout << "       [ID] Unexplored room  <ID> Visited room\n";
-    std::cout << "Room IDs match the movement menu. Hallways show available connections.\n";
+    std::cout << '\n' << DIM << "  LEGEND" << RESET << '\n';
+    std::cout << "  " << CYAN << BOLD << "<@ >" << RESET << " You are here   ";
+    std::cout << BLUE << BOLD << "<IN>" << RESET << " Entrance   ";
+    std::cout << GOLD << BOLD << "<EX>" << RESET << " Exit\n";
+    std::cout << "  " << RED << "[ID]" << RESET << " Unexplored   ";
+    std::cout << GREEN << "<ID>" << RESET << " Visited\n";
+    std::cout << DIM << "  Room IDs match the movement menu; connectors show available hallways."
+              << RESET << "\n";
+    std::cout << GOLD << BOLD << std::string(52, '=') << RESET << '\n';
 }
 
 void Floor::printRoomChoices() const
 {
+    const char* RESET = "\033[0m";
+    const char* DIM = "\033[38;5;240m";
+    const char* RED = "\033[38;5;160m";
+    const char* GREEN = "\033[38;5;114m";
+    const char* CYAN = "\033[38;5;80m";
+    const char* GOLD = "\033[38;5;220m";
+    const char* BLUE = "\033[38;5;75m";
+
     const std::vector<int>& connections = rooms[currentRoomId].connections;
 
-    std::cout << "Connected rooms:\n";
+    std::cout << CYAN << "  CONNECTED ROOMS" << RESET << '\n';
+    std::cout << DIM << "  ------------------------------------------------------" << RESET << '\n';
     for (std::size_t i = 0; i < connections.size(); ++i)
     {
         const int destination = connections[i];
-        std::cout << "  " << destination << ". ";
+        const char* color = RED;
+        std::string destinationName;
 
         if (destination == entranceRoomId)
         {
-            std::cout << "Entrance";
+            color = BLUE;
+            destinationName = "Entrance";
         }
         else if (destination == exitRoomId)
         {
-            std::cout << "Floor Exit";
+            color = GOLD;
+            destinationName = "Floor Exit";
         }
         else if (rooms[destination].visited)
         {
-            std::cout << "Visited room";
+            color = GREEN;
+            destinationName = "Visited room";
         }
         else
         {
-            std::cout << "Unexplored room";
+            destinationName = "Unexplored room";
         }
 
-        std::cout << '\n';
+        std::cout << "    " << GOLD << destination << RESET << ". "
+                  << color << destinationName << RESET << '\n';
     }
+    std::cout << DIM << "  ------------------------------------------------------" << RESET << '\n';
 }
+
