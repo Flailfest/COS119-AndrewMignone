@@ -500,6 +500,22 @@ void Battle::skillMenu(Character& character)
                 skillName = "Heal Ally";
             }
         }
+        else if (character.getName() == "Arbalest")
+        {
+            skillName = (choice == 1) ? "Sniper Shot" : "Battlefield Bandage";
+        }
+        else if (character.getName() == "Musketeer")
+        {
+            skillName = (choice == 1) ? "Aimed Shot" : "Piercing Shot";
+        }
+        else if (character.getName() == "Man-at-Arms")
+        {
+            skillName = (choice == 1) ? "Crush" : "Shield Bash";
+        }
+        else if (character.getName() == "Hellion")
+        {
+            skillName = (choice == 1) ? "Wicked Glaive" : "Iron Glaive";
+        }
         character.useSkill(choice, *target);
         int hpAfter = target->getHP();
         if (targetType == TargetType::Enemy)
@@ -537,7 +553,44 @@ void Battle::skillMenu(Character& character)
                 std::to_string(healingReceived) +
                 " HP.";
         }
+
+        if (character.getName() == "Man-at-Arms" &&
+            choice == 2 && targetType == TargetType::Enemy &&
+            target->isAlive())
+        {
+            markEnemyStunned(*target);
+            lastActionMessage += " The target is stunned and will lose its next turn.";
+            narratorMessage = "A shield blow leaves the enemy reeling.";
+        }
         return;
     }
 }
 
+
+
+void Battle::markEnemyStunned(Character& enemy)
+{
+    for (std::vector<Character*>::const_iterator it = stunnedEnemies.begin();
+         it != stunnedEnemies.end(); ++it)
+    {
+        if (*it == &enemy)
+        {
+            return;
+        }
+    }
+    stunnedEnemies.push_back(&enemy);
+}
+
+bool Battle::consumeEnemyStun(Character& enemy)
+{
+    for (std::vector<Character*>::iterator it = stunnedEnemies.begin();
+         it != stunnedEnemies.end(); ++it)
+    {
+        if (*it == &enemy)
+        {
+            stunnedEnemies.erase(it);
+            return true;
+        }
+    }
+    return false;
+}

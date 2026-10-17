@@ -27,6 +27,11 @@ bool Party::addMember(Character& character, int position)
     return true;
 }
 
+bool Party::removeMember(int position)
+{
+    return formation.removeMember(position);
+}
+
 Character* Party::getMember(int position) const
 {
     return formation.getMember(position);

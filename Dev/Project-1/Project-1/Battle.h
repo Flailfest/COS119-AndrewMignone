@@ -4,6 +4,7 @@
 #include "Enemy.h"
 
 #include <string>
+#include <vector>
 
 class Battle
 {
@@ -27,6 +28,11 @@ private:
     // Stores the narrator's current line.
     // It remains unchanged while the same turn's menu is open.
     std::string narratorMessage;
+
+    // Enemies listed here lose their next turn after Shield Bash.
+    std::vector<Character*> stunnedEnemies;
+    void markEnemyStunned(Character& enemy);
+    bool consumeEnemyStun(Character& enemy);
 
     void printBattleState() const;
     void printCharacterStatus(const Character& character) const;

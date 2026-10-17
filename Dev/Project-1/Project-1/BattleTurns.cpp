@@ -348,6 +348,15 @@ void Battle::enemyTurn(Character& enemy)
     {
         return;
     }
+    if (consumeEnemyStun(enemy))
+    {
+        lastActionMessage = enemy.getName() + " is stunned and loses its turn!";
+        narratorMessage = "The enemy cannot act after the crushing shield blow.";
+        clearScreen();
+        printBattleState();
+        Input::waitForEnter();
+        return;
+    }
     std::cout << "\n";
     std::cout << "------------------------------------\n";
     std::cout << enemy.getName() << "'s turn!\n";

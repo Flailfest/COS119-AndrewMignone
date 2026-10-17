@@ -1,9 +1,14 @@
 #pragma once
 
-// Runs the floor-exploration test with random connected rooms,
-// hallway torchlight depletion, inventory, party status, and map.
+#include "Room.h" // LightLevel
+
+class Party;
+class Inventory;
+
+// Standalone floor test plus a campaign-friendly overload that reuses state.
 class FloorTest
 {
 public:
     void run();
+    void run(Party& party, Inventory& inventory, int& gold, LightLevel& lightLevel);
 };

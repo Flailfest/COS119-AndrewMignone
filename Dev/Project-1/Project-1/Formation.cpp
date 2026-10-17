@@ -38,6 +38,24 @@ bool Formation::addMember(Character& character, int position)
     return true;
 }
 
+bool Formation::removeMember(int position)
+{
+    if (position < 1 || position > 4)
+    {
+        return false;
+    }
+
+    Character* character = members[position - 1];
+    if (character == nullptr)
+    {
+        return false;
+    }
+
+    members[position - 1] = nullptr;
+    character->setPosition(0);
+    return true;
+}
+
 Character* Formation::getMember(int position) const
 {
     if (position < 1 || position > 4)

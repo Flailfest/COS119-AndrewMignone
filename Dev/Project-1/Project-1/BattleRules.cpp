@@ -32,6 +32,26 @@ namespace BattleRules
             rules = { 1, 4, 1, 2 };
             return true;
         }
+        if (name == "Arbalest")
+        {
+            rules = { 2, 3, 1, 4 };
+            return true;
+        }
+        if (name == "Musketeer")
+        {
+            rules = { 3, 4, 1, 4 };
+            return true;
+        }
+        if (name == "Man-at-Arms")
+        {
+            rules = { 1, 2, 1, 2 };
+            return true;
+        }
+        if (name == "Hellion")
+        {
+            rules = { 1, 2, 1, 2 };
+            return true;
+        }
 
         return false;
     }
@@ -92,6 +112,58 @@ namespace BattleRules
             if (skillNumber == 2)
             {
                 rules = { 1, 4, 1, 4 };
+                return true;
+            }
+        }
+        else if (name == "Arbalest")
+        {
+            if (skillNumber == 1) // Sniper Shot
+            {
+                rules = { 2, 3, 1, 4 };
+                return true;
+            }
+            if (skillNumber == 2) // Battlefield Bandage
+            {
+                rules = { 1, 4, 1, 4 };
+                return true;
+            }
+        }
+        else if (name == "Musketeer")
+        {
+            if (skillNumber == 1) // Aimed Shot
+            {
+                rules = { 3, 4, 1, 4 };
+                return true;
+            }
+            if (skillNumber == 2) // Piercing Shot
+            {
+                rules = { 3, 4, 1, 3 };
+                return true;
+            }
+        }
+        else if (name == "Man-at-Arms")
+        {
+            if (skillNumber == 1) // Crush
+            {
+                rules = { 1, 2, 1, 2 };
+                return true;
+            }
+            if (skillNumber == 2) // Shield Bash
+            {
+                rules = { 1, 2, 1, 2 };
+                return true;
+            }
+        }
+        else if (name == "Hellion")
+        {
+            if (skillNumber == 1) // Wicked Glaive
+            {
+                rules = { 1, 2, 1, 3 };
+                return true;
+            }
+            if (skillNumber == 2) // Iron Glaive, strongest from position 2
+            {
+                rules = { 2, 2, 1, 3 };
                 return true;
             }
         }

@@ -11,6 +11,7 @@ public:
     Party();
 
     bool addMember(Character& character, int position);
+    bool removeMember(int position);
     Character* getMember(int position) const;
 
     bool moveMember(int fromPosition, int toPosition);

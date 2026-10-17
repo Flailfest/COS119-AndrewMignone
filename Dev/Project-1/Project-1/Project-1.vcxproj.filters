@@ -16,9 +16,6 @@
     <Filter Include="Header Files\Testing">
       <UniqueIdentifier>{cba7478b-ac0d-4243-a8c2-b5965ffbb1f5}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\Testing">
-      <UniqueIdentifier>{85a2d03b-5526-42de-affb-1a09183c8de5}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Header Files\Character items">
       <UniqueIdentifier>{c634c7e4-00b4-4735-9a4f-83b2682d5b55}</UniqueIdentifier>
     </Filter>
@@ -57,9 +54,6 @@
     <ClCompile Include="Room.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="RoomTest.cpp">
-      <Filter>Source Files\Testing</Filter>
-    </ClCompile>
     <ClCompile Include="Character.cpp">
       <Filter>Source Files\Character Items.cpp</Filter>
     </ClCompile>
@@ -69,15 +63,6 @@
     <ClCompile Include="Party.cpp">
       <Filter>Source Files\Character Items.cpp</Filter>
     </ClCompile>
-    <ClCompile Include="rendering.cpp">
-      <Filter>Source Files\Testing</Filter>
-    </ClCompile>
-    <ClCompile Include="Input.cpp">
-      <Filter>Source Files\Testing</Filter>
-    </ClCompile>
-    <ClCompile Include="Menu.cpp">
-      <Filter>Source Files\Testing</Filter>
-    </ClCompile>
     <ClCompile Include="Inventory.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -86,9 +71,6 @@
     </ClCompile>
     <ClCompile Include="Floor.cpp">
       <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="FloorTest.cpp">
-      <Filter>Source Files\Testing</Filter>
     </ClCompile>
     <ClCompile Include="Battle.cpp">
       <Filter>Source Files\BattleUtilities</Filter>
@@ -107,6 +89,33 @@
     </ClCompile>
     <ClCompile Include="BattleUI.cpp">
       <Filter>Source Files\BattleUtilities</Filter>
+    </ClCompile>
+    <ClCompile Include="Campaign.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Town.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Arbalest.cpp">
+      <Filter>Source Files\Character Items.cpp\character type .cpp%27s</Filter>
+    </ClCompile>
+    <ClCompile Include="Hellion.cpp">
+      <Filter>Source Files\Character Items.cpp\character type .cpp%27s</Filter>
+    </ClCompile>
+    <ClCompile Include="ManAtArms.cpp">
+      <Filter>Source Files\Character Items.cpp\character type .cpp%27s</Filter>
+    </ClCompile>
+    <ClCompile Include="Musketeer.cpp">
+      <Filter>Source Files\Character Items.cpp\character type .cpp%27s</Filter>
+    </ClCompile>
+    <ClCompile Include="Menu.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Input.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="FloorTest.cpp">
+      <Filter>Header Files\Testing</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -128,12 +137,6 @@
     <ClInclude Include="Input.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="CombatTest.h">
-      <Filter>Header Files\Testing</Filter>
-    </ClInclude>
-    <ClInclude Include="RoomTest.h">
-      <Filter>Header Files\Testing</Filter>
-    </ClInclude>
     <ClInclude Include="Character.h">
       <Filter>Header Files\Character items</Filter>
     </ClInclude>
@@ -142,12 +145,6 @@
     </ClInclude>
     <ClInclude Include="Party.h">
       <Filter>Header Files\Character items</Filter>
-    </ClInclude>
-    <ClInclude Include="rendering.h">
-      <Filter>Header Files\Testing</Filter>
-    </ClInclude>
-    <ClInclude Include="Menu.h">
-      <Filter>Header Files\Testing</Filter>
     </ClInclude>
     <ClInclude Include="Inventory.h">
       <Filter>Header Files</Filter>
@@ -158,9 +155,6 @@
     <ClInclude Include="Floor.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="FloorTest.h">
-      <Filter>Header Files\Testing</Filter>
-    </ClInclude>
     <ClInclude Include="Battle.h">
       <Filter>Header Files\BattleUtilities.h</Filter>
     </ClInclude>
@@ -169,6 +163,30 @@
     </ClInclude>
     <ClInclude Include="BattleUI.h">
       <Filter>Header Files\BattleUtilities.h</Filter>
+    </ClInclude>
+    <ClInclude Include="Campaign.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Town.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Arbalest.h">
+      <Filter>Header Files\Character items\Character type .h%27s</Filter>
+    </ClInclude>
+    <ClInclude Include="Hellion.h">
+      <Filter>Header Files\Character items\Character type .h%27s</Filter>
+    </ClInclude>
+    <ClInclude Include="ManAtArms.h">
+      <Filter>Header Files\Character items\Character type .h%27s</Filter>
+    </ClInclude>
+    <ClInclude Include="Musketeer.h">
+      <Filter>Header Files\Character items\Character type .h%27s</Filter>
+    </ClInclude>
+    <ClInclude Include="Menu.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="FloorTest.h">
+      <Filter>Header Files\Testing</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

@@ -325,6 +325,7 @@ namespace
 
 void FloorTest::run()
 {
+    // Standalone test mode keeps its original four-hero setup.
     Crusader crusader;
     Highwayman highwayman;
     PlagueDoctor plagueDoctor;
@@ -339,6 +340,19 @@ void FloorTest::run()
     Inventory inventory(5, 3, 2);
     int gold = 0;
     LightLevel lightLevel = LightLevel::Bright;
+
+    run(playerParty, inventory, gold, lightLevel);
+}
+
+void FloorTest::run(
+    Party& playerParty,
+    Inventory& inventory,
+    int& gold,
+    LightLevel& lightLevel
+)
+{
+    // Campaign mode passes persistent party, supplies, gold, and torchlight.
+    // A new floor is generated for each run, then control returns to town.
     Floor floor;
 
     while (true)
