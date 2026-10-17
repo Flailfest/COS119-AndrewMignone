@@ -148,6 +148,7 @@
     <ClCompile Include="BattleUI.cpp" />
     <ClCompile Include="Campaign.cpp" />
     <ClCompile Include="Character.cpp" />
+    <ClCompile Include="ConsoleCentering.cpp" />
     <ClCompile Include="Crusader.cpp" />
     <ClCompile Include="Enemy.cpp" />
     <ClCompile Include="Floor.cpp" />
@@ -174,6 +175,7 @@
     <ClInclude Include="BattleUI.h" />
     <ClInclude Include="Campaign.h" />
     <ClInclude Include="Character.h" />
+    <ClInclude Include="ConsoleCentering.h" />
     <ClInclude Include="Crusader.h" />
     <ClInclude Include="Enemy.h" />
     <ClInclude Include="Floor.h" />

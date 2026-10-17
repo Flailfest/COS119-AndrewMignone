@@ -117,6 +117,9 @@
     <ClCompile Include="FloorTest.cpp">
       <Filter>Header Files\Testing</Filter>
     </ClCompile>
+    <ClCompile Include="ConsoleCentering.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Vestal.h">
@@ -187,6 +190,9 @@
     </ClInclude>
     <ClInclude Include="FloorTest.h">
       <Filter>Header Files\Testing</Filter>
+    </ClInclude>
+    <ClInclude Include="ConsoleCentering.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
