@@ -13,8 +13,7 @@
 
 int main()
 {
-    // Center std::cout output from all menus, battles, rooms, and campaign screens.
-    ConsoleCentering centerConsole;
+   
 
     runMainMenu();
 
