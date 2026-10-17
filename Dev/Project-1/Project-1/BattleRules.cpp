@@ -11,45 +11,45 @@ namespace BattleRules
 
         if (name == "Crusader")
         {
-            rules = { 1, 2, 1, 2 };
+            rules = { 1, 2, 1, 3 };
             return true;
         }
 
         if (name == "Highwayman")
         {
-            rules = { 1, 3, 2, 4 };
+            rules = { 1, 2, 1, 3 };
             return true;
         }
 
         if (name == "Plague Doctor")
         {
-            rules = { 1, 3, 1, 2 };
+            rules = { 1, 4, 1, 3 };
             return true;
         }
 
         if (name == "Vestal")
         {
-            rules = { 1, 4, 1, 2 };
+            rules = { 1, 4, 1, 3 };
             return true;
         }
         if (name == "Arbalest")
         {
-            rules = { 2, 3, 1, 4 };
+            rules = { 2, 4, 1, 4 };
             return true;
         }
         if (name == "Musketeer")
         {
-            rules = { 3, 4, 1, 4 };
+            rules = { 2, 4, 1, 4 };
             return true;
         }
         if (name == "Man-at-Arms")
         {
-            rules = { 1, 2, 1, 2 };
+            rules = { 1, 2, 1, 3 };
             return true;
         }
         if (name == "Hellion")
         {
-            rules = { 1, 2, 1, 2 };
+            rules = { 1, 2, 1, 4 };
             return true;
         }
 
