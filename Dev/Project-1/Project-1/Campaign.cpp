@@ -6,9 +6,10 @@
 #include <utility>
 
 Campaign::Campaign()
-    : inventory(5, 3, 2),
+    : inventory(8, 5, 5),
       gold(100),
-      lightLevel(LightLevel::Bright)
+      lightLevel(LightLevel::Bright),
+      stageCoachUsed(false)
 {
     // The campaign starts with exactly two heroes: Crusader and Highwayman.
     Character* crusader = addHero(std::shared_ptr<Character>(new Crusader()));
@@ -66,6 +67,16 @@ bool Campaign::spendGold(int amount)
 
     gold -= amount;
     return true;
+}
+
+bool Campaign::hasUsedStageCoach() const
+{
+    return stageCoachUsed;
+}
+
+void Campaign::markStageCoachUsed()
+{
+    stageCoachUsed = true;
 }
 
 void Campaign::addGold(int amount)

@@ -17,6 +17,7 @@ private:
     int gold;
     LightLevel lightLevel;
     std::vector<std::shared_ptr<Character> > roster;
+    bool stageCoachUsed = false;
 
 public:
     Campaign();
@@ -41,4 +42,7 @@ public:
     Character* addHero(std::shared_ptr<Character> hero);
     bool dismissHero(Character* hero);
     bool hasLivingPartyMember() const;
+    bool hasUsedStageCoach() const;
+    void markStageCoachUsed();
+   
 };

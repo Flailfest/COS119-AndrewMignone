@@ -338,7 +338,24 @@ namespace
 
     void stageCoach(Campaign& campaign)
     {
-        const int arrivalCount = randomInt(1, 4);
+        // Prevent the Stage Coach from being used twice.
+        if (campaign.hasUsedStageCoach())
+        {
+            clearTownScreen();
+            printHeader("STAGE COACH", GOLD);
+
+            std::cout << RED
+                << "  The stage coach has already departed.\n"
+                << RESET;
+
+            Input::waitForEnter();
+            return;
+        }
+
+        // Mark it as used before generating recruits.
+        campaign.markStageCoachUsed();
+
+        const int arrivalCount = randomInt(2, 4);
         std::vector<std::shared_ptr<Character> > arrivals;
         for (int i = 0; i < arrivalCount; ++i)
         {
@@ -638,7 +655,15 @@ void Town::run(Campaign& campaign)
         std::cout << "  " << GOLD << "1" << RESET << ". Enter the Cellar (start a floor run)\n";
         std::cout << "  " << GOLD << "2" << RESET << ". Supply Shop\n";
         std::cout << "  " << GOLD << "3" << RESET << ". Stress Relief\n";
-        std::cout << "  " << GOLD << "4" << RESET << ". Stage Coach\n";
+        std::cout << "  " << GOLD << "4" << RESET
+            << ". Stage Coach";
+
+        if (campaign.hasUsedStageCoach())
+        {
+            std::cout << " " << RED << "[USED]" << RESET;
+        }
+
+        std::cout << "\n";
         std::cout << "  " << GOLD << "5" << RESET << ". Party Management\n";
         std::cout << "  " << GOLD << "6" << RESET << ". View Inventory\n";
         std::cout << "  " << DIM << "0. Return to Main Menu" << RESET << '\n';
