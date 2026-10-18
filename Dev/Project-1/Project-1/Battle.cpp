@@ -1,806 +1,143 @@
 #include "Battle.h"
-#include "Input.h"
+#include "BattleUI.h"
 
 #include <iostream>
-#include <random>
-#include <iomanip>
-
-void clearScreen()
-{
-#ifdef _WIN32
-    system("cls");
-#else
-    system("clear");
-#endif
-}
-
-bool stressOccurs()
-{
-    static std::random_device rd;
-    static std::mt19937 generator(rd());
-
-    std::uniform_int_distribution<int> distribution(1, 100);
-
-    return distribution(generator) <= 40;
-}
-
-int randomStress(int minimum, int maximum)
-{
-    static std::random_device rd;
-    static std::mt19937 generator(rd());
-
-    std::uniform_int_distribution<int> distribution(
-        minimum,
-        maximum
-    );
-
-    return distribution(generator);
-}
-
-Battle::Battle(Party& playerParty)
-    : playerParty(playerParty),
-    enemyCount(0)
-{
-    for (int i = 0; i < 4; i++)
-    {
-        enemyRoster[i] = nullptr;
-    }
-
-    generateEnemyParty();
-}
-
-Battle::~Battle()
-{
-    for (int i = 0; i < 4; i++)
-    {
-        delete enemyRoster[i];
-        enemyRoster[i] = nullptr;
-    }
-}
-
-void Battle::generateEnemyParty()
-{
-    static std::random_device rd;
-    static std::mt19937 generator(rd());
-
-    std::uniform_int_distribution<int> countDistribution(1, 4);
-
-    enemyCount = countDistribution(generator);
-
-    std::cout << "\n";
-    std::cout << "Generating enemy party...\n";
-    std::cout << "Enemy count: "
-        << enemyCount
-        << "\n";
-
-    for (int i = 0; i < enemyCount; i++)
-    {
-        enemyRoster[i] = createRandomEnemy();
-
-        if (enemyRoster[i] != nullptr)
-        {
-            enemyParty.addMember(
-                *enemyRoster[i],
-                i + 1
-            );
-        }
-    }
-}
-
-Enemy* Battle::createRandomEnemy()
-{
-    static std::random_device rd;
-    static std::mt19937 generator(rd());
-
-    std::uniform_int_distribution<int> enemyDistribution(1, 3);
-
-    int enemyType = enemyDistribution(generator);
-
-    switch (enemyType)
-    {
-    case 1:
-    {
-        return new Enemy(
-            "Brigand",
-            {
-                20,
-                4,
-                80,
-                3,
-                6,
-                5
-            },
-            10,
-            20
-        );
-    }
-
-    case 2:
-    {
-        return new Enemy(
-            "Cultist",
-            {
-                18,
-                5,
-                85,
-                2,
-                5,
-                8
-            },
-            12,
-            25
-        );
-    }
-
-    case 3:
-    {
-        return new Enemy(
-            "Ghoul",
-            {
-                28,
-                3,
-                75,
-                5,
-                9,
-                3
-            },
-            15,
-            30
-        );
-    }
-    }
-
-    return nullptr;
-}
-
-void Battle::printCharacterStatus(
-    const Character& character
-) const
-{
-    std::cout
-        << character.getName()
-        << "  HP: "
-        << character.getHP()
-        << "/"
-        << character.getMaxHP()
-        << "  Position: "
-        << character.getPosition()
-        << "\n";
-}
-
-void Battle::printBattleState() const
-{
-    const std::string GREEN = "\033[32m";
-    const std::string CRIMSON = "\033[38;5;88m";
-    const std::string RESET = "\033[0m";
-
-    const int COLUMN_WIDTH = 45;
-
-    // Align the enemy column based on visible text length.
-    auto printColumnGap = [](const std::string& text)
-        {
-            int spaces = 45 - static_cast<int>(text.length());
-
-            if (spaces < 1)
-                spaces = 1;
-
-            std::cout << std::string(spaces, ' ');
-        };
-
-    std::cout << "\n";
-    std::cout << "================================================================================\n";
-    std::cout << "                                  BATTLE\n";
-    std::cout << "================================================================================\n\n";
-
-    std::cout << GREEN << "PLAYER PARTY" << RESET;
-    std::cout << std::string(COLUMN_WIDTH - 12, ' ');
-    std::cout << CRIMSON << "ENEMY PARTY" << RESET;
-    std::cout << "\n";
-
-    std::cout << "--------------------------------------------------------------------------------\n";
-
-    for (int i = 1; i <= 4; i++)
-    {
-        Character* player = playerParty.getMember(i);
-        Character* enemy = enemyParty.getMember(i);
-
-        // Character names
-        std::string playerName;
-        std::string enemyName;
-
-        if (player != nullptr)
-            playerName = std::to_string(i) + ". " + player->getName();
-
-        if (enemy != nullptr)
-            enemyName = std::to_string(i) + ". " + enemy->getName();
-
-        if (player != nullptr)
-            std::cout << GREEN << playerName << RESET;
-
-        printColumnGap(playerName);
-
-        if (enemy != nullptr)
-            std::cout << CRIMSON << enemyName << RESET;
-
-        std::cout << "\n";
-
-        // Player HP and stress
-        std::string playerStats;
-
-        if (player != nullptr)
-        {
-            playerStats =
-                "   HP: " +
-                std::to_string(player->getHP()) +
-                "/" +
-                std::to_string(player->getMaxHP()) +
-                "   Stress: " +
-                std::to_string(player->getStress()) +
-                "/200";
-
-            std::cout << GREEN << playerStats << RESET;
-        }
-
-        printColumnGap(playerStats);
-
-        // Enemy HP
-        if (enemy != nullptr)
-        {
-            std::string enemyStats =
-                "   HP: " +
-                std::to_string(enemy->getHP()) +
-                "/" +
-                std::to_string(enemy->getMaxHP());
-
-            std::cout << CRIMSON << enemyStats << RESET;
-        }
-
-        std::cout << "\n";
-
-        // Player position
-        std::string playerPosition;
-
-        if (player != nullptr)
-        {
-            playerPosition =
-                "   Position: " +
-                std::to_string(player->getPosition());
-
-            std::cout << GREEN << playerPosition << RESET;
-        }
-
-        printColumnGap(playerPosition);
-
-        // Enemy position
-        if (enemy != nullptr)
-        {
-            std::string enemyPosition =
-                "   Position: " +
-                std::to_string(enemy->getPosition());
-
-            std::cout << CRIMSON << enemyPosition << RESET;
-        }
-
-        std::cout << "\n\n";
-    }
-
-    std::cout << "================================================================================\n";
-}
-
-bool Battle::playerPartyAlive() const
-{
-    for (int i = 1; i <= 4; i++)
-    {
-        Character* character =
-            playerParty.getMember(i);
-
-        if (character != nullptr &&
-            character->isAlive())
-        {
-            return true;
-        }
-    }
-
-    return false;
-}
-
-bool Battle::enemyPartyAlive() const
-{
-    for (int i = 1; i <= 4; i++)
-    {
-        Character* enemy =
-            enemyParty.getMember(i);
-
-        if (enemy != nullptr &&
-            enemy->isAlive())
-        {
-            return true;
-        }
-    }
-
-    return false;
-}
-
-Character* Battle::chooseEnemyTarget(
-    Character& character,
-    int minimumPosition,
-    int maximumPosition)
-{
-    while (true)
-    {
-        std::cout << "\n";
-        std::cout << "Choose a target:\n";
-
-        bool hasTarget = false;
-
-        for (int i = 1; i <= 4; i++)
-        {
-            Character* enemy = enemyParty.getMember(i);
-
-            if (enemy == nullptr)
-                continue;
-
-            if (!enemy->isAlive())
-                continue;
-
-            if (!character.isTargetInRange(*enemy, minimumPosition, maximumPosition))
-                continue;
-
-            std::cout
-                << i << ". "
-                << enemy->getName()
-                << " (" << enemy->getHP()
-                << "/" << enemy->getMaxHP()
-                << " HP)\n";
-
-            hasTarget = true;
-        }
-
-        if (!hasTarget)
-        {
-            std::cout << "No enemies are in range.\n";
-            return nullptr;
-        }
-
-        std::cout << "0. Back\n";
-
-        int choice = Input::getInt(
-            "Choose a target: "
-        );
-
-        if (choice == 0)
-            return nullptr;
-
-        Character* target = enemyParty.getMember(choice);
-
-        if (target == nullptr ||
-            !target->isAlive() ||
-            !character.isTargetInRange(*target, minimumPosition, maximumPosition))
-        {
-            std::cout << "Invalid target.\n";
-            continue;
-        }
-
-        return target;
-    }
-}
-
-Character* Battle::chooseAllyTarget()
-{
-    while (true)
-    {
-        std::cout << "\n";
-        std::cout << "Choose an ally:\n";
-
-        for (int i = 1; i <= 4; i++)
-        {
-            Character* ally =
-                playerParty.getMember(i);
-
-            if (ally != nullptr &&
-                ally->isAlive())
-            {
-                std::cout
-                    << i
-                    << ". "
-                    << ally->getName()
-                    << " ("
-                    << ally->getHP()
-                    << "/"
-                    << ally->getMaxHP()
-                    << " HP)\n";
-            }
-        }
-
-        std::cout << "0. Back\n";
-        std::cout << "\n";
-
-        int choice = Input::getInt(
-            "Choose: "
-        );
-
-        if (choice == 0)
-        {
-            return nullptr;
-        }
-
-        if (choice >= 1 && choice <= 4)
-        {
-            Character* ally =
-                playerParty.getMember(choice);
-
-            if (ally != nullptr &&
-                ally->isAlive())
-            {
-                return ally;
-            }
-        }
-
-        std::cout
-            << "Invalid target.\n";
-    }
-}
-
-bool Battle::attackMenu(Character& character)
-{
-    Character* target = nullptr;
-
-    if (character.getName() == "Crusader")
-        target = chooseEnemyTarget(character, 1, 2);
-    else if (character.getName() == "Highwayman")
-        target = chooseEnemyTarget(character, 2, 4);
-    else if (character.getName() == "Plague Doctor")
-        target = chooseEnemyTarget(character, 1, 2);
-    else if (character.getName() == "Vestal")
-        target = chooseEnemyTarget(character, 1, 2);
-
-    if (target == nullptr)
-        return false;
-
-    character.attack(*target);
-    return true;
-}
-
-void Battle::skillMenu(Character& character)
-{
-    while (true)
-    {
-        std::cout << "\n";
-        std::cout << "====================================\n";
-        std::cout
-            << character.getName()
-            << " Skills\n";
-        std::cout << "====================================\n";
-
-        character.printSkills();
-
-        std::cout << "0. Back\n";
-
-        std::cout << "\n";
-
-        int choice = Input::getInt(
-            "Choose a skill: "
-        );
-
-        if (choice == 0)
-        {
-            return;
-        }
-
-        if (choice < 1)
-        {
-            std::cout << "Invalid skill.\n";
-            continue;
-        }
-
-        TargetType targetType =
-            character.getSkillTargetType(choice);
-
-        Character* target = nullptr;
-
-        if (targetType == TargetType::Enemy)
-        {
-            int minimumPosition = 1;
-            int maximumPosition = 4;
-
-            if (character.getName() == "Crusader")
-            {
-                if (choice == 1) // Smite
-                {
-                    minimumPosition = 3;
-                    maximumPosition = 4;
-                }
-            }
-            else if (character.getName() == "Highwayman")
-            {
-                if (choice == 1) // Pistol Shot
-                {
-                    minimumPosition = 2;
-                    maximumPosition = 4;
-                }
-                else if (choice == 2) // Melee Attack
-                {
-                    minimumPosition = 1;
-                    maximumPosition = 2;
-                }
-            }
-            else if (character.getName() == "Plague Doctor")
-            {
-                if (choice == 1) // Plague Grenade
-                {
-                    minimumPosition = 3;
-                    maximumPosition = 4;
-                }
-            }
-            else if (character.getName() == "Vestal")
-            {
-                if (choice == 1) // Smite
-                {
-                    minimumPosition = 1;
-                    maximumPosition = 2;
-                }
-            }
-
-            target = chooseEnemyTarget(
-                character,
-                minimumPosition,
-                maximumPosition
-            );
-        }
-        else if (targetType == TargetType::Ally)
-        {
-            target = chooseAllyTarget();
-        }
-
-        if (target == nullptr)
-        {
-            continue;
-        }
-
-        character.useSkill(choice, *target);
-
-        return;
-    }
-}
-
-void Battle::playerTurn(Character& character)
-{
-    bool gainedStress = false;
-    int stressIncrease = 0;
-
-    if (stressOccurs())
-    {
-        stressIncrease = randomStress(1, 3);
-
-        character.addStress(stressIncrease);
-
-        gainedStress = true;
-    }
-
-    while (true)
-    {
-        clearScreen();
-
-        printBattleState();
-
-        std::cout << "\n";
-        std::cout << "====================================\n";
-        std::cout << character.getName() << "'s Turn\n";
-        std::cout << "====================================\n";
-
-        if (gainedStress)
-        {
-            std::cout
-                << character.getName()
-                << " gains "
-                << stressIncrease
-                << " stress.\n";
-        }
-        else
-        {
-            std::cout
-                << character.getName()
-                << "'s Mind remains unbroken.\n";
-        }
-
-        std::cout << "\n";
-
-        std::cout << "1. Attack\n";
-        std::cout << "2. Skills\n";
-        std::cout << "3. Party Status\n";
-        std::cout << "4. Pass\n";
-        std::cout << "\n";
-
-        int choice = Input::getInt(
-            "Choose an action: "
-        );
-
-        if (choice == 1)
-        {
-            attackMenu(character);
-            return;
-        }
-
-        if (choice == 2)
-        {
-            skillMenu(character);
-            return;
-        }
-
-        if (choice == 3)
-        {
-            continue;
-        }
-
-        if (choice == 4)
-        {
-            std::cout
-                << character.getName()
-                << " passes.\n";
-
-            return;
-        }
-
-        std::cout << "Invalid choice.\n";
-    }
-}
-
-void Battle::enemyTurn(Character& enemy)
-{
-    clearScreen();
-
-    printBattleState();
-
-    if (!enemy.isAlive())
-    {
-        return;
-    }
-
-    std::cout << "\n";
-    std::cout
-        << "------------------------------------\n";
-
-    std::cout
-        << enemy.getName()
-        << "'s turn!\n";
-
-    std::cout
-        << "------------------------------------\n";
-
-    /*
-        Temporary enemy AI.
-
-        For now the enemy simply attacks
-        a random living hero.
-    */
-
-    Character* targets[4];
-    int targetCount = 0;
-
-    for (int i = 1; i <= 4; i++)
-    {
-        Character* target =
-            playerParty.getMember(i);
-
-        if (target != nullptr &&
-            target->isAlive())
-        {
-            targets[targetCount] = target;
-            targetCount++;
-        }
-    }
-
-    if (targetCount == 0)
-    {
-        return;
-    }
-
-    static std::random_device rd;
-    static std::mt19937 generator(rd());
-
-    std::uniform_int_distribution<int>
-        targetDistribution(
-            0,
-            targetCount - 1
-        );
-
-    Character* target =
-        targets[targetDistribution(generator)];
-
-    enemy.attack(*target);
-}
 
 void Battle::start()
 {
-    std::cout << "\n";
+    clearScreen();
+
     std::cout << "====================================\n";
     std::cout << "          BATTLE START!\n";
     std::cout << "====================================\n";
 
     printBattleState();
-
-    while (playerPartyAlive() &&
-        enemyPartyAlive())
+    while (playerPartyAlive() && enemyPartyAlive())
     {
-        /*
-            Player turns.
+        Character* playerTurnOrder[4] = {
+            nullptr, nullptr, nullptr, nullptr
+        };
 
-            For now, heroes act in formation
-            order: 1 -> 2 -> 3 -> 4.
-        */
+        Character* enemyTurnOrder[4] = {
+            nullptr, nullptr, nullptr, nullptr
+        };
 
-        for (int i = 1; i <= 4; i++)
+        for (int position = 1; position <= 4; position++)
+        {
+            Character* player =
+                playerParty.getMember(position);
+
+            Character* enemy =
+                enemyParty.getMember(position);
+
+            if (player != nullptr && player->isAlive())
+            {
+                playerTurnOrder[position - 1] = player;
+            }
+
+            if (enemy != nullptr && enemy->isAlive())
+            {
+                enemyTurnOrder[position - 1] = enemy;
+            }
+        }
+        for (int i = 0; i < 2; i++)
         {
             if (!enemyPartyAlive())
             {
                 break;
             }
 
-            Character* character =
-                playerParty.getMember(i);
+            Character* character = playerTurnOrder[i];
 
-            if (character != nullptr &&
-                character->isAlive())
+            if (character != nullptr && character->isAlive())
             {
                 playerTurn(*character);
             }
         }
-
-        if (!enemyPartyAlive())
+        if (!playerPartyAlive() || !enemyPartyAlive())
         {
             break;
         }
-
-        /*
-            Enemy turns.
-
-            For now, enemies also act in
-            formation order.
-        */
-
-        for (int i = 1; i <= 4; i++)
+        for (int i = 0; i < 2; i++)
         {
             if (!playerPartyAlive())
             {
                 break;
             }
 
-            Character* enemy =
-                enemyParty.getMember(i);
+            Character* enemy = enemyTurnOrder[i];
 
-            if (enemy != nullptr &&
-                enemy->isAlive())
+            if (enemy != nullptr && enemy->isAlive())
             {
                 enemyTurn(*enemy);
             }
         }
+        if (!playerPartyAlive() || !enemyPartyAlive())
+        {
+            break;
+        }
+        for (int i = 2; i < 4; i++)
+        {
+            if (!enemyPartyAlive())
+            {
+                break;
+            }
 
+            Character* character = playerTurnOrder[i];
+
+            if (character != nullptr && character->isAlive())
+            {
+                playerTurn(*character);
+            }
+        }
+        if (!playerPartyAlive() || !enemyPartyAlive())
+        {
+            break;
+        }
+        for (int i = 2; i < 4; i++)
+        {
+            if (!playerPartyAlive())
+            {
+                break;
+            }
+
+            Character* enemy = enemyTurnOrder[i];
+
+            if (enemy != nullptr && enemy->isAlive())
+            {
+                enemyTurn(*enemy);
+            }
+        }
+        clearScreen();
         printBattleState();
     }
+    clearScreen();
+    printBattleState();
 
     std::cout << "\n";
     std::cout << "====================================\n";
 
     if (playerPartyAlive())
     {
-        std::cout
-            << "           VICTORY!\n";
+        std::cout << "           VICTORY!\n";
     }
     else
     {
-        std::cout
-            << "            DEFEAT!\n";
+        std::cout << "            DEFEAT!\n";
     }
 
     std::cout << "====================================\n";
 }
+
 
 Party& Battle::getPlayerParty()
 {
     return playerParty;
 }
 
+
 Party& Battle::getEnemyParty()
 {
     return enemyParty;
 }
+

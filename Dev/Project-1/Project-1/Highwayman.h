@@ -11,6 +11,14 @@ public:
     void meleeAttack(Character& target);
 
     void printSkills() const override;
-    void useSkill(int skillNumber, Character& target) override;
-    void attack(Character& target) override;
+
+    void useSkill(
+        int skillNumber,
+        Character& target
+    ) override;
+
+    TargetType getSkillTargetType(
+        int skillNumber
+    ) const override;
+
 };

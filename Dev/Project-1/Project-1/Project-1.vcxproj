@@ -139,37 +139,57 @@
     </Manifest>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Arbalest.cpp" />
     <ClCompile Include="Battle.cpp" />
+    <ClCompile Include="BattleActions.cpp" />
+    <ClCompile Include="BattleRules.cpp" />
+    <ClCompile Include="BattleSetup.cpp" />
+    <ClCompile Include="BattleTurns.cpp" />
+    <ClCompile Include="BattleUI.cpp" />
+    <ClCompile Include="Campaign.cpp" />
     <ClCompile Include="Character.cpp" />
     <ClCompile Include="Crusader.cpp" />
     <ClCompile Include="Enemy.cpp" />
+    <ClCompile Include="Floor.cpp" />
+    <ClCompile Include="FloorTest.cpp" />
+    <ClCompile Include="Formation.cpp" />
+    <ClCompile Include="Hellion.cpp" />
     <ClCompile Include="Highwayman.cpp" />
     <ClCompile Include="Input.cpp" />
     <ClCompile Include="Inventory.cpp" />
     <ClCompile Include="Main.cpp" />
+    <ClCompile Include="ManAtArms.cpp" />
     <ClCompile Include="Menu.cpp" />
+    <ClCompile Include="Musketeer.cpp" />
     <ClCompile Include="Party.cpp" />
     <ClCompile Include="PlagueDoctor.cpp" />
-    <ClCompile Include="rendering.cpp" />
     <ClCompile Include="Room.cpp" />
-    <ClCompile Include="RoomTest.cpp" />
+    <ClCompile Include="Town.cpp" />
     <ClCompile Include="Vestal.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Arbalest.h" />
     <ClInclude Include="Battle.h" />
+    <ClInclude Include="BattleRules.h" />
+    <ClInclude Include="BattleUI.h" />
+    <ClInclude Include="Campaign.h" />
     <ClInclude Include="Character.h" />
-    <ClInclude Include="CombatTest.h" />
     <ClInclude Include="Crusader.h" />
     <ClInclude Include="Enemy.h" />
+    <ClInclude Include="Floor.h" />
+    <ClInclude Include="FloorTest.h" />
+    <ClInclude Include="Formation.h" />
+    <ClInclude Include="Hellion.h" />
     <ClInclude Include="Highwayman.h" />
     <ClInclude Include="Input.h" />
     <ClInclude Include="Inventory.h" />
+    <ClInclude Include="ManAtArms.h" />
     <ClInclude Include="Menu.h" />
+    <ClInclude Include="Musketeer.h" />
     <ClInclude Include="Party.h" />
     <ClInclude Include="PlagueDoctor.h" />
-    <ClInclude Include="rendering.h" />
     <ClInclude Include="Room.h" />
-    <ClInclude Include="RoomTest.h" />
+    <ClInclude Include="Town.h" />
     <ClInclude Include="Vestal.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
