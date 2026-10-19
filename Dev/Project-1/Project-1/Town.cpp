@@ -693,6 +693,8 @@ void Town::run(Campaign& campaign)
                 campaign.getGold(),
                 campaign.getLightLevel()
             );
+
+            campaign.resetStageCoachUsed();
             // FloorTest returns here after clearing a floor, defeat, or leaving.
             continue;
         }
