@@ -90,6 +90,9 @@
     <ClCompile Include="BattleUI.cpp">
       <Filter>Source Files\BattleUtilities</Filter>
     </ClCompile>
+    <ClCompile Include="SaveManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="Campaign.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -163,6 +166,9 @@
     </ClInclude>
     <ClInclude Include="BattleUI.h">
       <Filter>Header Files\BattleUtilities.h</Filter>
+    </ClInclude>
+    <ClInclude Include="SaveManager.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Campaign.h">
       <Filter>Header Files</Filter>

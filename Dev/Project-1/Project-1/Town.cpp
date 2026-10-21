@@ -1,6 +1,7 @@
 #include "Town.h"
 
 #include "Campaign.h"
+#include "SaveManager.h"
 #include "Character.h"
 #include "Crusader.h"
 #include "FloorTest.h"
@@ -666,10 +667,12 @@ void Town::run(Campaign& campaign)
         std::cout << "\n";
         std::cout << "  " << GOLD << "5" << RESET << ". Party Management\n";
         std::cout << "  " << GOLD << "6" << RESET << ". View Inventory\n";
+        std::cout << "  " << GOLD << "7" << RESET << ". Save Campaign\n";
+        std::cout << "  " << GOLD << "8" << RESET << ". Load Campaign\n";
         std::cout << "  " << DIM << "0. Return to Main Menu" << RESET << '\n';
         printRule();
 
-        const int choice = Input::getIntInRange("\nChoose a service: ", 0, 6);
+        const int choice = Input::getIntInRange("\nChoose a service: ", 0, 8);
         if (choice == 0)
         {
             return;
@@ -718,6 +721,72 @@ void Town::run(Campaign& campaign)
         else if (choice == 6)
         {
             showInventory(campaign);
+        }
+        else if (choice == 7)
+        {
+            clearTownScreen();
+            printHeader("SAVE CAMPAIGN", GOLD);
+
+            const std::vector<std::string> existingSaves = SaveManager::listSaves();
+            if (existingSaves.empty())
+            {
+                std::cout << "  No existing save files. Create your first save below.\n\n";
+            }
+            else
+            {
+                std::cout << "  Existing saves (matching a name will overwrite it):\n";
+                for (const std::string& saveFile : existingSaves)
+                {
+                    std::cout << "    - " << saveFile << '\n';
+                }
+                std::cout << '\n';
+            }
+
+            std::cout << "Save name (letters, numbers, _ or -; .sav is optional; blank cancels): ";
+            std::string saveName;
+            std::getline(std::cin, saveName);
+            if (saveName.empty())
+            {
+                std::cout << DIM << "\nSave cancelled.\n" << RESET;
+            }
+            else
+            {
+                std::string message;
+                const bool saved = SaveManager::save(campaign, saveName, message);
+                std::cout << (saved ? GREEN : RED) << "\n" << message << RESET << '\n';
+            }
+            Input::waitForEnter();
+        }
+        else if (choice == 8)
+        {
+            clearTownScreen();
+            printHeader("LOAD CAMPAIGN", GOLD);
+
+            const std::vector<std::string> saves = SaveManager::listSaves();
+            if (saves.empty())
+            {
+                std::cout << RED << "  No save files were found in the saves folder.\n" << RESET;
+                Input::waitForEnter();
+                continue;
+            }
+
+            for (std::size_t i = 0; i < saves.size(); ++i)
+            {
+                std::cout << "  " << GOLD << (i + 1) << RESET << ". " << saves[i] << '\n';
+            }
+            std::cout << "  " << DIM << "0. Cancel" << RESET << "\n\n";
+
+            const int saveChoice = Input::getIntInRange(
+                "Choose a save to load: ", 0, static_cast<int>(saves.size()));
+            if (saveChoice == 0)
+            {
+                continue;
+            }
+
+            std::string message;
+            const bool loaded = SaveManager::load(campaign, saves[saveChoice - 1], message);
+            std::cout << (loaded ? GREEN : RED) << "\n" << message << RESET << '\n';
+            Input::waitForEnter();
         }
     }
 }
