@@ -2,6 +2,7 @@
 
 #include <iostream>
 
+
 namespace Input
 {
     int getInt(const std::string& prompt)

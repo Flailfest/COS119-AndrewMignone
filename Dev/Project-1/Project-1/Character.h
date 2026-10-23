@@ -14,7 +14,8 @@ struct Stats
 enum class TargetType
 {
     Enemy,
-    Ally
+    Ally,
+    Self
 };
 class Character
 {
@@ -57,6 +58,7 @@ public:
     void takeDamage(int damage);
     void heal(int amount);
     void setPosition(int newPosition);
+    void restoreSavedState(int savedHP, int savedStress);
 
     virtual TargetType getSkillTargetType(int skillNumber) const;
     virtual void printSkills() const;

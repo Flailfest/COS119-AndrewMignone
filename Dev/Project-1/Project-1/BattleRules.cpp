@@ -52,6 +52,31 @@ namespace BattleRules
             rules = { 1, 2, 1, 4 };
             return true;
         }
+        if (name == "Leper")
+        {
+            rules = { 1, 2, 1, 2 };
+            return true;
+        }
+        if (name == "Houndmaster")
+        {
+            rules = { 1, 4, 1, 4 };
+            return true;
+        }
+        if (name == "Occultist")
+        {
+            rules = { 2, 4, 1, 3 };
+            return true;
+        }
+        if (name == "Bounty Hunter")
+        {
+            rules = { 1, 3, 1, 3 };
+            return true;
+        }
+        if (name == "Grave Robber")
+        {
+            rules = { 2, 4, 1, 4 };
+            return true;
+        }
 
         return false;
     }
@@ -164,6 +189,71 @@ namespace BattleRules
             if (skillNumber == 2) // Iron Glaive, strongest from position 2
             {
                 rules = { 2, 2, 1, 3 };
+                return true;
+            }
+        }
+        else if (name == "Leper")
+        {
+            if (skillNumber == 1) // Chop
+            {
+                rules = { 1, 2, 1, 2 };
+                return true;
+            }
+            if (skillNumber == 2) // Solemnity targets self; target range unused
+            {
+                rules = { 1, 4, 1, 4 };
+                return true;
+            }
+        }
+        else if (name == "Houndmaster")
+        {
+            if (skillNumber == 1) // Hound's Rush
+            {
+                rules = { 1, 4, 1, 4 };
+                return true;
+            }
+            if (skillNumber == 2) // Blackjack
+            {
+                rules = { 1, 3, 1, 3 };
+                return true;
+            }
+        }
+        else if (name == "Occultist")
+        {
+            if (skillNumber == 1) // Sacrificial Stab
+            {
+                rules = { 2, 4, 1, 3 };
+                return true;
+            }
+            if (skillNumber == 2) // Wyrd Reconstruction
+            {
+                rules = { 2, 4, 1, 4 };
+                return true;
+            }
+        }
+        else if (name == "Bounty Hunter")
+        {
+            if (skillNumber == 1) // Collect Bounty
+            {
+                rules = { 1, 3, 1, 2 };
+                return true;
+            }
+            if (skillNumber == 2) // Finish Him
+            {
+                rules = { 1, 3, 1, 3 };
+                return true;
+            }
+        }
+        else if (name == "Grave Robber")
+        {
+            if (skillNumber == 1) // Pick to the Face
+            {
+                rules = { 2, 4, 1, 2 };
+                return true;
+            }
+            if (skillNumber == 2) // Thrown Dagger
+            {
+                rules = { 2, 4, 2, 4 };
                 return true;
             }
         }

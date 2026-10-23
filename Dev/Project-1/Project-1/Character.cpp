@@ -224,6 +224,15 @@ void Character::setPosition(int newPosition)
     position = newPosition;
 }
 
+// Restore persistent values from a validated campaign save without
+// triggering combat or stress messages during loading.
+void Character::restoreSavedState(int savedHP, int savedStress)
+{
+    currentHP = std::max(0, std::min(savedHP, stats.maxHP));
+    stress = std::max(0, std::min(savedStress, 200));
+    position = 0;
+}
+
 
 // --------------------------------------------------
 // Display

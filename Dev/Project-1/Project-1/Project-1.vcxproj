@@ -147,6 +147,7 @@
     <ClCompile Include="BattleTurns.cpp" />
     <ClCompile Include="BattleUI.cpp" />
     <ClCompile Include="Campaign.cpp" />
+    <ClCompile Include="SaveManager.cpp" />
     <ClCompile Include="Character.cpp" />
     <ClCompile Include="Crusader.cpp" />
     <ClCompile Include="Enemy.cpp" />
@@ -155,6 +156,11 @@
     <ClCompile Include="Formation.cpp" />
     <ClCompile Include="Hellion.cpp" />
     <ClCompile Include="Highwayman.cpp" />
+    <ClCompile Include="Leper.cpp" />
+    <ClCompile Include="Houndmaster.cpp" />
+    <ClCompile Include="Occultist.cpp" />
+    <ClCompile Include="BountyHunter.cpp" />
+    <ClCompile Include="GraveRobber.cpp" />
     <ClCompile Include="Input.cpp" />
     <ClCompile Include="Inventory.cpp" />
     <ClCompile Include="Main.cpp" />
@@ -173,6 +179,7 @@
     <ClInclude Include="BattleRules.h" />
     <ClInclude Include="BattleUI.h" />
     <ClInclude Include="Campaign.h" />
+    <ClInclude Include="SaveManager.h" />
     <ClInclude Include="Character.h" />
     <ClInclude Include="Crusader.h" />
     <ClInclude Include="Enemy.h" />
@@ -180,6 +187,11 @@
     <ClInclude Include="FloorTest.h" />
     <ClInclude Include="Formation.h" />
     <ClInclude Include="Hellion.h" />
+    <ClInclude Include="Leper.h" />
+    <ClInclude Include="Houndmaster.h" />
+    <ClInclude Include="Occultist.h" />
+    <ClInclude Include="BountyHunter.h" />
+    <ClInclude Include="GraveRobber.h" />
     <ClInclude Include="Highwayman.h" />
     <ClInclude Include="Input.h" />
     <ClInclude Include="Inventory.h" />

@@ -449,6 +449,10 @@ void Battle::skillMenu(Character& character)
         {
             target = chooseAllyTarget();
         }
+        else if (targetType == TargetType::Self)
+        {
+            target = &character;
+        }
         if (target == nullptr)
         {
             continue;
@@ -516,6 +520,26 @@ void Battle::skillMenu(Character& character)
         {
             skillName = (choice == 1) ? "Wicked Glaive" : "Iron Glaive";
         }
+        else if (character.getName() == "Leper")
+        {
+            skillName = (choice == 1) ? "Chop" : "Solemnity";
+        }
+        else if (character.getName() == "Houndmaster")
+        {
+            skillName = (choice == 1) ? "Hound's Rush" : "Blackjack";
+        }
+        else if (character.getName() == "Occultist")
+        {
+            skillName = (choice == 1) ? "Sacrificial Stab" : "Wyrd Reconstruction";
+        }
+        else if (character.getName() == "Bounty Hunter")
+        {
+            skillName = (choice == 1) ? "Collect Bounty" : "Finish Him";
+        }
+        else if (character.getName() == "Grave Robber")
+        {
+            skillName = (choice == 1) ? "Pick to the Face" : "Thrown Dagger";
+        }
         character.useSkill(choice, *target);
         int hpAfter = target->getHP();
         if (targetType == TargetType::Enemy)
@@ -553,14 +577,22 @@ void Battle::skillMenu(Character& character)
                 std::to_string(healingReceived) +
                 " HP.";
         }
+        else if (targetType == TargetType::Self)
+        {
+            const int healingReceived = hpAfter - hpBefore;
+            lastActionMessage = character.getName() + " uses " + skillName +
+                ", restoring " + std::to_string(healingReceived) + " HP.";
+        }
 
-        if (character.getName() == "Man-at-Arms" &&
-            choice == 2 && targetType == TargetType::Enemy &&
-            target->isAlive())
+        if (((character.getName() == "Man-at-Arms" && choice == 2) ||
+             (character.getName() == "Houndmaster" && choice == 2)) &&
+            targetType == TargetType::Enemy && target->isAlive())
         {
             markEnemyStunned(*target);
             lastActionMessage += " The target is stunned and will lose its next turn.";
-            narratorMessage = "A shield blow leaves the enemy reeling.";
+            narratorMessage = character.getName() == "Houndmaster"
+                ? "The Houndmaster's blackjack leaves the enemy reeling."
+                : "A shield blow leaves the enemy reeling.";
         }
         return;
     }

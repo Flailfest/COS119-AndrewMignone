@@ -44,5 +44,6 @@ public:
     bool hasLivingPartyMember() const;
     bool hasUsedStageCoach() const;
     void markStageCoachUsed();
+    void resetStageCoachUsed();
    
 };

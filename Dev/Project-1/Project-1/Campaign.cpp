@@ -92,6 +92,11 @@ int Campaign::getRosterSize() const
     return static_cast<int>(roster.size());
 }
 
+void Campaign::resetStageCoachUsed()
+{
+    stageCoachUsed = false;
+}
+
 Character* Campaign::getRosterMember(int rosterIndex) const
 {
     if (rosterIndex < 1 || rosterIndex > static_cast<int>(roster.size()))

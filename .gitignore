@@ -6,6 +6,8 @@
 *.obsidian
 .mp4
 *.mp4
+.sav
+*.sav
 
 # Compiled Object files
 *.slo
