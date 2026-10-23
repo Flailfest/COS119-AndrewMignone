@@ -13,6 +13,11 @@
 #include "Musketeer.h"
 #include "ManAtArms.h"
 #include "Hellion.h"
+#include "Leper.h"
+#include "Houndmaster.h"
+#include "Occultist.h"
+#include "BountyHunter.h"
+#include "GraveRobber.h"
 
 #include <cstdlib>
 #include <iostream>
@@ -66,7 +71,7 @@ namespace
 
     std::shared_ptr<Character> createRandomHero()
     {
-        switch (randomInt(1, 8))
+        switch (randomInt(1, 13))
         {
         case 1:
             return std::shared_ptr<Character>(new Crusader());
@@ -82,8 +87,18 @@ namespace
             return std::shared_ptr<Character>(new Musketeer());
         case 7:
             return std::shared_ptr<Character>(new ManAtArms());
-        default:
+        case 8:
             return std::shared_ptr<Character>(new Hellion());
+        case 9:
+            return std::shared_ptr<Character>(new Leper());
+        case 10:
+            return std::shared_ptr<Character>(new Houndmaster());
+        case 11:
+            return std::shared_ptr<Character>(new Occultist());
+        case 12:
+            return std::shared_ptr<Character>(new BountyHunter());
+        default:
+            return std::shared_ptr<Character>(new GraveRobber());
         }
     }
 

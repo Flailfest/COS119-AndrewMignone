@@ -14,7 +14,8 @@ struct Stats
 enum class TargetType
 {
     Enemy,
-    Ally
+    Ally,
+    Self
 };
 class Character
 {

@@ -10,6 +10,11 @@
 #include "Musketeer.h"
 #include "ManAtArms.h"
 #include "Hellion.h"
+#include "Leper.h"
+#include "Houndmaster.h"
+#include "Occultist.h"
+#include "BountyHunter.h"
+#include "GraveRobber.h"
 
 #include <algorithm>
 #include <cctype>
@@ -43,6 +48,11 @@ namespace
         if (dynamic_cast<const Musketeer*>(&hero)) return "Musketeer";
         if (dynamic_cast<const ManAtArms*>(&hero)) return "ManAtArms";
         if (dynamic_cast<const Hellion*>(&hero)) return "Hellion";
+        if (dynamic_cast<const Leper*>(&hero)) return "Leper";
+        if (dynamic_cast<const Houndmaster*>(&hero)) return "Houndmaster";
+        if (dynamic_cast<const Occultist*>(&hero)) return "Occultist";
+        if (dynamic_cast<const BountyHunter*>(&hero)) return "BountyHunter";
+        if (dynamic_cast<const GraveRobber*>(&hero)) return "GraveRobber";
         return nullptr;
     }
 
@@ -56,6 +66,11 @@ namespace
         if (type == "Musketeer") return std::shared_ptr<Character>(new Musketeer());
         if (type == "ManAtArms") return std::shared_ptr<Character>(new ManAtArms());
         if (type == "Hellion") return std::shared_ptr<Character>(new Hellion());
+        if (type == "Leper") return std::shared_ptr<Character>(new Leper());
+        if (type == "Houndmaster") return std::shared_ptr<Character>(new Houndmaster());
+        if (type == "Occultist") return std::shared_ptr<Character>(new Occultist());
+        if (type == "BountyHunter") return std::shared_ptr<Character>(new BountyHunter());
+        if (type == "GraveRobber") return std::shared_ptr<Character>(new GraveRobber());
         return std::shared_ptr<Character>();
     }
 

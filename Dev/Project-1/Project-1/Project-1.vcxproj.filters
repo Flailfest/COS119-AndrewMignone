@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <Filter Include="Source Files">
@@ -105,6 +105,21 @@
     <ClCompile Include="Hellion.cpp">
       <Filter>Source Files\Character Items.cpp\character type .cpp%27s</Filter>
     </ClCompile>
+    <ClCompile Include="Leper.cpp">
+      <Filter>Source Files\Character Items.cpp\character type .cpp%27s</Filter>
+    </ClCompile>
+    <ClCompile Include="Houndmaster.cpp">
+      <Filter>Source Files\Character Items.cpp\character type .cpp%27s</Filter>
+    </ClCompile>
+    <ClCompile Include="Occultist.cpp">
+      <Filter>Source Files\Character Items.cpp\character type .cpp%27s</Filter>
+    </ClCompile>
+    <ClCompile Include="BountyHunter.cpp">
+      <Filter>Source Files\Character Items.cpp\character type .cpp%27s</Filter>
+    </ClCompile>
+    <ClCompile Include="GraveRobber.cpp">
+      <Filter>Source Files\Character Items.cpp\character type .cpp%27s</Filter>
+    </ClCompile>
     <ClCompile Include="ManAtArms.cpp">
       <Filter>Source Files\Character Items.cpp\character type .cpp%27s</Filter>
     </ClCompile>
@@ -180,6 +195,21 @@
       <Filter>Header Files\Character items\Character type .h%27s</Filter>
     </ClInclude>
     <ClInclude Include="Hellion.h">
+      <Filter>Header Files\Character items\Character type .h%27s</Filter>
+    </ClInclude>
+    <ClInclude Include="Leper.h">
+      <Filter>Header Files\Character items\Character type .h%27s</Filter>
+    </ClInclude>
+    <ClInclude Include="Houndmaster.h">
+      <Filter>Header Files\Character items\Character type .h%27s</Filter>
+    </ClInclude>
+    <ClInclude Include="Occultist.h">
+      <Filter>Header Files\Character items\Character type .h%27s</Filter>
+    </ClInclude>
+    <ClInclude Include="BountyHunter.h">
+      <Filter>Header Files\Character items\Character type .h%27s</Filter>
+    </ClInclude>
+    <ClInclude Include="GraveRobber.h">
       <Filter>Header Files\Character items\Character type .h%27s</Filter>
     </ClInclude>
     <ClInclude Include="ManAtArms.h">
